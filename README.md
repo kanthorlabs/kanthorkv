@@ -62,4 +62,4 @@
 
 ## Diary
 
-- 2025-03-01: [Implement block_id and page](docs/diary/2025-03-01.md)
+- 2025-03-01: [Implement page and block_id](docs/diary/2025-03-01.md)

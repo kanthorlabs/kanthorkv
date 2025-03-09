@@ -5,40 +5,50 @@ import (
 	"hash/fnv"
 )
 
-type BlockId interface {
-	Filename() string
-	Number() uint64
-	Equals(other BlockId) bool
-	ToString() string
-	HashCode() int
-}
-
-func NewBlockId(filename string, number uint64) (BlockId, error) {
-	return &localblock{filename, number}, nil
-}
-
-type localblock struct {
+// BlockId represents a specific block in a specific file
+type BlockId struct {
 	filename string
-	number   uint64
+	blknum   int64
 }
 
-func (b *localblock) Filename() string {
+// NewBlockId creates a new BlockId with the given filename and block number
+func NewBlockId(filename string, blknum int64) (*BlockId, error) {
+	if filename == "" {
+		return nil, ErrBlockIdFilenameEmpty()
+	}
+
+	if blknum < 0 {
+		return nil, ErrBlockIdInvalidBlockNumber(blknum)
+	}
+
+	return &BlockId{filename: filename, blknum: blknum}, nil
+}
+
+// Filename returns the name of the file this block belongs to
+func (b *BlockId) Filename() string {
 	return b.filename
 }
 
-func (b *localblock) Number() uint64 {
-	return b.number
+// Number returns the block number within the file
+func (b *BlockId) Number() int64 {
+	return b.blknum
 }
 
-func (b *localblock) Equals(other BlockId) bool {
-	return b.Filename() == other.Filename() && b.Number() == other.Number()
+// String returns a string representation of the BlockId
+func (b *BlockId) String() string {
+	return fmt.Sprintf("[file:%s, block:%d]", b.filename, b.blknum)
 }
 
-func (b *localblock) ToString() string {
+// Equals checks if two BlockIds represent the same block
+func (b *BlockId) Equals(other *BlockId) bool {
+	return b.filename == other.filename && b.blknum == other.blknum
+}
+
+func (b *BlockId) ToString() string {
 	return fmt.Sprintf("[file %s, block %d]", b.Filename(), b.Number())
 }
 
-func (b *localblock) HashCode() int {
+func (b *BlockId) HashCode() int {
 	str := b.ToString()
 	h := fnv.New32a()
 	h.Write([]byte(str))

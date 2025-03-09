@@ -63,3 +63,4 @@
 ## Diary
 
 - 2025-03-01: [Implement page and block_id](docs/diary/2025-03-01.md)
+- 2025-03-09: [Implement file manager](docs/diary/2025-03-09.md)

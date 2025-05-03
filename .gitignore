@@ -23,3 +23,18 @@ go.work.sum
 
 # env file
 .env
+
+# Output of the go coverage tool
+coverage.out
+coverage.html
+*.cover
+
+# Test cache
+.testcache/
+
+# Go test and benchmark data
+*.prof
+*.pprof
+
+# Debug executables
+__debug_bin

@@ -63,6 +63,14 @@ func ErrFMCreateDir(dirname string, err error) error {
 	return Errf("FILE_MANAGER.DB.CREATE_DIR", args...)
 }
 
+func ErrFMCreateFile(filepath string, err error) error {
+	args := []string{
+		fmt.Sprintf("filepath=%s", filepath),
+		fmt.Sprintf("err=%v", err),
+	}
+	return Errf("FILE_MANAGER.DB.CREATE_FILE", args...)
+}
+
 func ErrFMIsNotDir(dirname string) error {
 	args := []string{
 		fmt.Sprintf("dirname=%s", dirname),

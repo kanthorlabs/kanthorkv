@@ -2,18 +2,26 @@ package storage
 
 import (
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/jaswdr/faker/v2"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-var fk = faker.New()
+var (
+	fk     faker.Faker
+	fkOnce sync.Once
+)
+
+func init() {
+	fkOnce.Do(func() {
+		fk = faker.New()
+	})
+}
 
 func TestStorage(t *testing.T) {
-	dbdir, err := os.MkdirTemp("", "kanthorkv-test-")
-	require.NoError(t, err)
+	dbdir := testdir(t)
 	defer os.RemoveAll(dbdir)
 
 	fm, err := NewFileManager(dbdir, 4096)
@@ -48,6 +56,13 @@ func TestStorage(t *testing.T) {
 	require.NoError(t, fm.Read(blk, p2))
 
 	// For these final assertions, we can use assert since no code depends on them
-	assert.Equal(t, p1.String(pos1), p2.String(pos1))
-	assert.Equal(t, p1.Int(pos2), p2.Int(pos2))
+	require.Equal(t, p1.String(pos1), p2.String(pos1))
+	require.Equal(t, p1.Int(pos2), p2.Int(pos2))
+}
+
+func testdir(t *testing.T) string {
+	dir, err := os.MkdirTemp("", "kanthorkv-test-")
+	require.NoError(t, err)
+	return dir
+
 }

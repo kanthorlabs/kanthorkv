@@ -14,7 +14,7 @@ type FileManager interface {
 	Read(blk *BlockId, page *Page) error
 	Write(blk *BlockId, page *Page) error
 	Append(filename string) (*BlockId, error)
-	Length(filename string) (int64, error)
+	Length(filename string) (int, error)
 	BlockSize() int
 }
 
@@ -75,8 +75,8 @@ func (fm localfm) Read(blk *BlockId, page *Page) error {
 		return err
 	}
 
-	pos := int64(blk.Number()) * int64(fm.blksize)
-	if _, err := f.Seek(pos, 0); err != nil {
+	pos := blk.Number() * fm.blksize
+	if _, err := f.Seek(int64(pos), 0); err != nil {
 		return ErrFMReadSeek(fm.dirname, blk.Filename(), pos, err)
 	}
 
@@ -96,8 +96,8 @@ func (fm localfm) Write(blk *BlockId, page *Page) error {
 		return err
 	}
 
-	pos := int64(blk.Number()) * int64(fm.blksize)
-	if _, err := f.Seek(pos, 0); err != nil {
+	pos := blk.Number() * fm.blksize
+	if _, err := f.Seek(int64(pos), 0); err != nil {
 		return ErrFMWriteSeek(fm.dirname, blk.Filename(), pos, err)
 	}
 
@@ -121,7 +121,7 @@ func (fm localfm) Append(filename string) (*BlockId, error) {
 	if err != nil {
 		return nil, ErrFMAppendStat(fm.dirname, filename, err)
 	}
-	blknum := stat.Size() / int64(fm.blksize)
+	blknum := int(stat.Size() / int64(fm.blksize))
 
 	blk, err := NewBlockId(filename, blknum)
 	if err != nil {
@@ -129,8 +129,8 @@ func (fm localfm) Append(filename string) (*BlockId, error) {
 	}
 
 	bytes := make([]byte, fm.blksize)
-	pos := int64(blk.Number()) * int64(fm.blksize)
-	if _, err := f.Seek(pos, 0); err != nil {
+	pos := blk.Number() * fm.blksize
+	if _, err := f.Seek(int64(pos), 0); err != nil {
 		return nil, ErrFMAppendSeek(fm.dirname, filename, pos, err)
 	}
 
@@ -141,10 +141,7 @@ func (fm localfm) Append(filename string) (*BlockId, error) {
 	return blk, nil
 }
 
-func (fm localfm) Length(filename string) (int64, error) {
-	fm.lock(filename)
-	defer fm.unlock(filename)
-
+func (fm localfm) Length(filename string) (int, error) {
 	f, err := fm.open(filename)
 	if err != nil {
 		return 0, err
@@ -154,7 +151,7 @@ func (fm localfm) Length(filename string) (int64, error) {
 		return 0, ErrFMLengthStat(fm.dirname, filename, err)
 	}
 
-	return stat.Size() / int64(fm.blksize), nil
+	return int(stat.Size() / int64(fm.blksize)), nil
 }
 
 func (fm localfm) BlockSize() int {
@@ -177,7 +174,7 @@ func (fm localfm) unlock(filename string) {
 	fm.mus[filename].Unlock()
 }
 
-func (fm localfm) open(filename string) (f *os.File, err error) {
+func (fm localfm) open(filename string) (*os.File, error) {
 	if f, ok := fm.files[filename]; ok {
 		return f, nil
 	}
@@ -188,16 +185,16 @@ func (fm localfm) open(filename string) (f *os.File, err error) {
 			return nil, ErrFMUnknown(fm.dirname, err)
 		}
 
-		f, err := os.Create(filepath)
+		// don't use returning file here,
+		// because we need it to be opened with O_SYNC
+		_, err := os.Create(filepath)
 		if err != nil {
 			return nil, ErrFMCreateFile(filepath, err)
 		}
-
-		fm.files[filename] = f
-		return f, nil
 	}
 
-	f, err = os.OpenFile(path.Join(fm.dirname, filename), os.O_SYNC, 0644)
+	// must be opened with O_SYNC to make sure all i/o operations are executed in synchronously
+	f, err := os.OpenFile(path.Join(fm.dirname, filename), os.O_SYNC, 0644)
 	if err != nil {
 		return nil, ErrFMCreateOpenFile(filepath, err)
 	}

@@ -8,11 +8,11 @@ import (
 // BlockId represents a specific block in a specific file
 type BlockId struct {
 	filename string
-	blknum   int64
+	blknum   int
 }
 
 // NewBlockId creates a new BlockId with the given filename and block number
-func NewBlockId(filename string, blknum int64) (*BlockId, error) {
+func NewBlockId(filename string, blknum int) (*BlockId, error) {
 	if filename == "" {
 		return nil, ErrBlockIdFilenameEmpty()
 	}
@@ -30,7 +30,7 @@ func (b *BlockId) Filename() string {
 }
 
 // Number returns the block number within the file
-func (b *BlockId) Number() int64 {
+func (b *BlockId) Number() int {
 	return b.blknum
 }
 

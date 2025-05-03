@@ -1,6 +1,10 @@
 # KanthorKV
 > Key-Value database implementation based on database research at KanthorLabs
 
+## Credits
+
+- [Go implementation of SimpleDB from "Database Design and Implementation" - yokomotod](https://github.com/yokomotod/database-design-and-implementation-go)
+
 ## Guideline
 
 1. Introduction & Requirements

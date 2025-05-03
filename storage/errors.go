@@ -15,7 +15,7 @@ func ErrBlockIdFilenameEmpty() error {
 	return Errf("BLOCK_ID.FILENAME_EMPTY")
 }
 
-func ErrBlockIdInvalidBlockNumber(blknum int64) error {
+func ErrBlockIdInvalidBlockNumber(blknum int) error {
 	args := []string{
 		fmt.Sprintf("blknum=%d", blknum),
 	}
@@ -103,7 +103,7 @@ func ErrFMDelTempFile(dirname, filename string, err error) error {
 	return Errf("FILE_MANAGER.DB.DEL_TEMP_FILE", args...)
 }
 
-func ErrFMReadSeek(dirname, filename string, pos int64, err error) error {
+func ErrFMReadSeek(dirname, filename string, pos int, err error) error {
 	args := []string{
 		fmt.Sprintf("dirname=%s", dirname),
 		fmt.Sprintf("filename=%s", filename),
@@ -113,7 +113,7 @@ func ErrFMReadSeek(dirname, filename string, pos int64, err error) error {
 	return Errf("FILE_MANAGER.READ.SEEK", args...)
 }
 
-func ErrFMRead(dirname, filename string, pos int64, err error) error {
+func ErrFMRead(dirname, filename string, pos int, err error) error {
 	args := []string{
 		fmt.Sprintf("dirname=%s", dirname),
 		fmt.Sprintf("filename=%s", filename),
@@ -123,7 +123,7 @@ func ErrFMRead(dirname, filename string, pos int64, err error) error {
 	return Errf("FILE_MANAGER.READ", args...)
 }
 
-func ErrFMWriteSeek(dirname, filename string, pos int64, err error) error {
+func ErrFMWriteSeek(dirname, filename string, pos int, err error) error {
 	args := []string{
 		fmt.Sprintf("dirname=%s", dirname),
 		fmt.Sprintf("filename=%s", filename),
@@ -133,7 +133,7 @@ func ErrFMWriteSeek(dirname, filename string, pos int64, err error) error {
 	return Errf("FILE_MANAGER.WRITE.SEEK", args...)
 }
 
-func ErrFMWrite(dirname, filename string, pos int64, err error) error {
+func ErrFMWrite(dirname, filename string, pos int, err error) error {
 	args := []string{
 		fmt.Sprintf("dirname=%s", dirname),
 		fmt.Sprintf("filename=%s", filename),
@@ -152,7 +152,7 @@ func ErrFMAppendStat(dirname, filename string, err error) error {
 	return Errf("FILE_MANAGER.APPEND.STAT", args...)
 }
 
-func ErrFMAppendNewBlock(dirname, filename string, blknum int64, err error) error {
+func ErrFMAppendNewBlock(dirname, filename string, blknum int, err error) error {
 	args := []string{
 		fmt.Sprintf("dirname=%s", dirname),
 		fmt.Sprintf("filename=%s", filename),
@@ -162,7 +162,7 @@ func ErrFMAppendNewBlock(dirname, filename string, blknum int64, err error) erro
 	return Errf("FILE_MANAGER.APPEND.STAT", args...)
 }
 
-func ErrFMAppendSeek(dirname, filename string, pos int64, err error) error {
+func ErrFMAppendSeek(dirname, filename string, pos int, err error) error {
 	args := []string{
 		fmt.Sprintf("dirname=%s", dirname),
 		fmt.Sprintf("filename=%s", filename),
@@ -172,7 +172,7 @@ func ErrFMAppendSeek(dirname, filename string, pos int64, err error) error {
 	return Errf("FILE_MANAGER.APPEND.SEEK", args...)
 }
 
-func ErrFMAppend(dirname, filename string, pos int64, err error) error {
+func ErrFMAppend(dirname, filename string, pos int, err error) error {
 	args := []string{
 		fmt.Sprintf("dirname=%s", dirname),
 		fmt.Sprintf("filename=%s", filename),

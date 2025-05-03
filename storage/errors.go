@@ -190,3 +190,19 @@ func ErrFMLengthStat(dirname, filename string, err error) error {
 	}
 	return Errf("FILE_MANAGER.LENGTH.STAT", args...)
 }
+
+func ErrFMUnlockUnknowFile(filename string, err error) error {
+	args := []string{
+		fmt.Sprintf("filename=%s", filename),
+		fmt.Sprintf("err=%v", err),
+	}
+	return Errf("FILE_MANAGER.UNLOCK", args...)
+}
+
+func ErrFMFinalize(filename string, err error) error {
+	args := []string{
+		fmt.Sprintf("filename=%s", filename),
+		fmt.Sprintf("err=%v", err),
+	}
+	return Errf("FILE_MANAGER.UNLOCK", args...)
+}

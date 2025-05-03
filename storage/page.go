@@ -11,6 +11,13 @@ func NewPage(blksize int) (*Page, error) {
 	return &Page{buffer: make([]byte, blksize)}, nil
 }
 
+func NewPageWithBuffer(buffer []byte) (*Page, error) {
+	if len(buffer) <= 0 {
+		return nil, ErrPageInvalidBlockSize(len(buffer))
+	}
+	return &Page{buffer: buffer}, nil
+}
+
 // Page is a object that holds contains of a disk block on memory.
 type Page struct {
 	buffer []byte

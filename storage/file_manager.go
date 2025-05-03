@@ -1,9 +1,10 @@
 package storage
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"path"
+	"runtime"
 	"strings"
 	"sync"
 )
@@ -51,12 +52,19 @@ func NewFileManager(dirname string, blksize int) (FileManager, error) {
 		}
 	}
 
-	return localfm{
+	fm := &localfm{
 		dirname: dirname,
 		blksize: blksize,
 		files:   make(map[string]*os.File),
 		mus:     make(map[string]*sync.Mutex),
-	}, nil
+	}
+
+	// Set up the finalizer to ensure Close is called when garbage collected
+	runtime.SetFinalizer(fm, func(fm *localfm) {
+		fm.finalize()
+	})
+
+	return fm, nil
 }
 
 type localfm struct {
@@ -142,6 +150,9 @@ func (fm localfm) Append(filename string) (*BlockId, error) {
 }
 
 func (fm localfm) Length(filename string) (int, error) {
+	fm.lock(filename)
+	defer fm.unlock(filename)
+
 	f, err := fm.open(filename)
 	if err != nil {
 		return 0, err
@@ -168,7 +179,7 @@ func (fm localfm) lock(filename string) {
 
 func (fm localfm) unlock(filename string) {
 	if _, ok := fm.mus[filename]; !ok {
-		panic(fmt.Sprintf("KANTHORKV.STORAGE.FILE_MANAGER.UNLOCK_UNKNOWN_FILE: %s", filename))
+		log.Println(ErrFMUnlockUnknowFile(filename, nil).Error())
 	}
 
 	fm.mus[filename].Unlock()
@@ -185,16 +196,16 @@ func (fm localfm) open(filename string) (*os.File, error) {
 			return nil, ErrFMUnknown(fm.dirname, err)
 		}
 
-		// don't use returning file here,
-		// because we need it to be opened with O_SYNC
-		_, err := os.Create(filepath)
+		f, err := os.OpenFile(filepath, os.O_RDWR|os.O_CREATE|os.O_SYNC, 0644)
 		if err != nil {
 			return nil, ErrFMCreateFile(filepath, err)
 		}
+		fm.files[filename] = f
+		return f, nil
 	}
 
-	// must be opened with O_SYNC to make sure all i/o operations are executed in synchronously
-	f, err := os.OpenFile(path.Join(fm.dirname, filename), os.O_SYNC, 0644)
+	// Open with both read and write access along with O_SYNC
+	f, err := os.OpenFile(filepath, os.O_RDWR|os.O_SYNC, 0644)
 	if err != nil {
 		return nil, ErrFMCreateOpenFile(filepath, err)
 	}
@@ -202,18 +213,13 @@ func (fm localfm) open(filename string) (*os.File, error) {
 	return f, nil
 }
 
-func (fm localfm) Close() error {
-	var msgs []string
+func (fm *localfm) finalize() {
 
 	for filename, f := range fm.files {
 		fm.lock(filename)
 		if err := f.Close(); err != nil {
-			msgs = append(msgs, fmt.Sprintf("%s=%v", filename, err))
+			log.Println(ErrFMFinalize(filename, err).Error())
 		}
+		fm.unlock(filename)
 	}
-	if len(msgs) > 0 {
-		return fmt.Errorf("KANTHORKV.STORAGE.FILE_MANAGER.CLOSE: %s", strings.Join(msgs, ", "))
-	}
-
-	return nil
 }

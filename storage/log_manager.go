@@ -107,7 +107,7 @@ func (lm *locallm) appendBlk() (*BlockId, error) {
 	if err := lm.logpage.SetInt(0, lm.fm.BlockSize()); err != nil {
 		return nil, err
 	}
-	if err := lm.fm.Write(lm.currentblk, lm.logpage); err != nil {
+	if err := lm.fm.Write(blk, lm.logpage); err != nil {
 		return nil, err
 	}
 

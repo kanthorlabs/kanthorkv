@@ -71,6 +71,14 @@ func ErrFMCreateFile(filepath string, err error) error {
 	return Errf("FILE_MANAGER.DB.CREATE_FILE", args...)
 }
 
+func ErrFMCreateOpenFile(filepath string, err error) error {
+	args := []string{
+		fmt.Sprintf("filepath=%s", filepath),
+		fmt.Sprintf("err=%v", err),
+	}
+	return Errf("FILE_MANAGER.DB.OPEN_FILE", args...)
+}
+
 func ErrFMIsNotDir(dirname string) error {
 	args := []string{
 		fmt.Sprintf("dirname=%s", dirname),
@@ -95,15 +103,6 @@ func ErrFMDelTempFile(dirname, filename string, err error) error {
 	return Errf("FILE_MANAGER.DB.DEL_TEMP_FILE", args...)
 }
 
-func ErrFMReadOpenFile(dirname, filename string, err error) error {
-	args := []string{
-		fmt.Sprintf("dirname=%s", dirname),
-		fmt.Sprintf("filename=%s", filename),
-		fmt.Sprintf("err=%v", err),
-	}
-	return Errf("FILE_MANAGER.READ.OPEN_FILE", args...)
-}
-
 func ErrFMReadSeek(dirname, filename string, pos int64, err error) error {
 	args := []string{
 		fmt.Sprintf("dirname=%s", dirname),
@@ -124,15 +123,6 @@ func ErrFMRead(dirname, filename string, pos int64, err error) error {
 	return Errf("FILE_MANAGER.READ", args...)
 }
 
-func ErrFMWriteOpenFile(dirname, filename string, err error) error {
-	args := []string{
-		fmt.Sprintf("dirname=%s", dirname),
-		fmt.Sprintf("filename=%s", filename),
-		fmt.Sprintf("err=%v", err),
-	}
-	return Errf("FILE_MANAGER.WRITE.OPEN_FILE", args...)
-}
-
 func ErrFMWriteSeek(dirname, filename string, pos int64, err error) error {
 	args := []string{
 		fmt.Sprintf("dirname=%s", dirname),
@@ -151,15 +141,6 @@ func ErrFMWrite(dirname, filename string, pos int64, err error) error {
 		fmt.Sprintf("err=%v", err),
 	}
 	return Errf("FILE_MANAGER.WRITE", args...)
-}
-
-func ErrFMAppendOpenFile(dirname, filename string, err error) error {
-	args := []string{
-		fmt.Sprintf("dirname=%s", dirname),
-		fmt.Sprintf("filename=%s", filename),
-		fmt.Sprintf("err=%v", err),
-	}
-	return Errf("FILE_MANAGER.APPEND.OPEN_FILE", args...)
 }
 
 func ErrFMAppendStat(dirname, filename string, err error) error {
@@ -199,15 +180,6 @@ func ErrFMAppend(dirname, filename string, pos int64, err error) error {
 		fmt.Sprintf("err=%v", err),
 	}
 	return Errf("FILE_MANAGER.APPEND", args...)
-}
-
-func ErrFMLengthOpenFile(dirname, filename string, err error) error {
-	args := []string{
-		fmt.Sprintf("dirname=%s", dirname),
-		fmt.Sprintf("filename=%s", filename),
-		fmt.Sprintf("err=%v", err),
-	}
-	return Errf("FILE_MANAGER.LENGTH.OPEN_FILE", args...)
 }
 
 func ErrFMLengthStat(dirname, filename string, err error) error {

@@ -72,7 +72,7 @@ func (fm localfm) Read(blk *BlockId, page *Page) error {
 
 	f, err := fm.open(blk.Filename())
 	if err != nil {
-		return ErrFMReadOpenFile(fm.dirname, blk.Filename(), err)
+		return err
 	}
 
 	pos := int64(blk.Number()) * int64(fm.blksize)
@@ -93,7 +93,7 @@ func (fm localfm) Write(blk *BlockId, page *Page) error {
 
 	f, err := fm.open(blk.Filename())
 	if err != nil {
-		return ErrFMWriteOpenFile(fm.dirname, blk.Filename(), err)
+		return err
 	}
 
 	pos := int64(blk.Number()) * int64(fm.blksize)
@@ -115,7 +115,7 @@ func (fm localfm) Append(filename string) (*BlockId, error) {
 
 	f, err := fm.open(filename)
 	if err != nil {
-		return nil, ErrFMAppendOpenFile(fm.dirname, filename, err)
+		return nil, err
 	}
 	stat, err := f.Stat()
 	if err != nil {
@@ -147,7 +147,7 @@ func (fm localfm) Length(filename string) (int64, error) {
 
 	f, err := fm.open(filename)
 	if err != nil {
-		return 0, ErrFMLengthOpenFile(fm.dirname, filename, err)
+		return 0, err
 	}
 	stat, err := f.Stat()
 	if err != nil {
@@ -199,7 +199,7 @@ func (fm localfm) open(filename string) (f *os.File, err error) {
 
 	f, err = os.OpenFile(path.Join(fm.dirname, filename), os.O_SYNC, 0644)
 	if err != nil {
-		return nil, err
+		return nil, ErrFMCreateOpenFile(filepath, err)
 	}
 	fm.files[filename] = f
 	return f, nil

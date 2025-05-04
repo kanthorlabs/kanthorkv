@@ -55,6 +55,28 @@ func TestLogManager(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 5, lsn5)
 
+	// Test 6: Verify Flush forces logs to disk even when there's room
+	// Add another record but don't fill the block
+	smallRec := []byte(fk.Lorem().Sentence(1))
+	lsn6, err := lm.Append(smallRec)
+	require.NoError(t, err)
+	require.Equal(t, 6, lsn6)
+
+	// Force flush to disk
+	err = lm.Flush(lsn6)
+	require.NoError(t, err)
+
+	// Test 7: Verify a new record is in memory but not flushed to disk yet
+	// Add one more record that should remain in memory until forced to flush
+	inMemoryRec := []byte(fk.Lorem().Sentence(2))
+	lsn7, err := lm.Append(inMemoryRec)
+	require.NoError(t, err)
+	require.Equal(t, 7, lsn7)
+
+	// Note: The LogManager.Iterator() method does call flush() internally
+	// which will write the in-memory record to disk before reading begins
+	// This is important because it ensures log consistency
+
 	// Test 5: Verify we can read back all records through iterator
 	iterator, err := lm.Iterator()
 	require.NoError(t, err)
@@ -63,6 +85,16 @@ func TestLogManager(t *testing.T) {
 	// Check records in reverse order (newest first)
 	require.True(t, iterator.HasNext())
 	rec, err := iterator.Next()
+	require.NoError(t, err)
+	require.Equal(t, inMemoryRec, rec)
+
+	require.True(t, iterator.HasNext())
+	rec, err = iterator.Next()
+	require.NoError(t, err)
+	require.Equal(t, smallRec, rec)
+
+	require.True(t, iterator.HasNext())
+	rec, err = iterator.Next()
 	require.NoError(t, err)
 	require.Equal(t, fillRec2, rec)
 

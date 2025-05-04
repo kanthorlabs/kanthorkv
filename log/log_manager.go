@@ -2,6 +2,8 @@ package log
 
 import "github.com/kanthorlabs/kanthorkv/file"
 
+var _ LogManager = (*locallm)(nil)
+
 type LogManager interface {
 	Append(rec []byte) (int, error)
 	Flush(lsn int) error

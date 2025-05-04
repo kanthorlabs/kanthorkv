@@ -19,6 +19,8 @@ type FileManager interface {
 	BlockSize() int
 }
 
+var _ FileManager = (*localfm)(nil)
+
 func NewFileManager(dirname string, blksize int) (FileManager, error) {
 	db, err := os.Stat(dirname)
 	if err != nil {

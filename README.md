@@ -4,6 +4,7 @@
 ## Credits
 
 - [Go implementation of SimpleDB from "Database Design and Implementation" - yokomotod](https://github.com/yokomotod/database-design-and-implementation-go)
+- [Building thread-safe abstractions in Java versus Go](https://rybicki.io/blog/2024/11/03/multithreaded-code-java-golang.html)
 
 ## Guideline
 

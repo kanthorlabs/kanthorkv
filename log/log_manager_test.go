@@ -1,9 +1,10 @@
-package storage
+package log
 
 import (
 	"os"
 	"testing"
 
+	"github.com/kanthorlabs/kanthorkv/file"
 	"github.com/stretchr/testify/require"
 )
 
@@ -11,7 +12,7 @@ func TestLogManager(t *testing.T) {
 	dir := testdir(t)
 	defer os.RemoveAll(dir)
 
-	fm, err := NewFileManager(dir, BLOCK_SIZE)
+	fm, err := file.NewFileManager(dir, file.BLOCK_SIZE)
 	require.NoError(t, err)
 	require.NotNil(t, fm)
 

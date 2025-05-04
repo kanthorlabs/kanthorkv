@@ -1,4 +1,6 @@
-package storage
+package log
+
+import "github.com/kanthorlabs/kanthorkv/file"
 
 type LogManager interface {
 	Append(rec []byte) (int, error)
@@ -6,8 +8,8 @@ type LogManager interface {
 	Iterator() (*LogIterator, error)
 }
 
-func NewLogManager(fm FileManager, logfile string) (LogManager, error) {
-	logpage, err := NewPage(fm.BlockSize())
+func NewLogManager(fm file.FileManager, logfile string) (LogManager, error) {
+	logpage, err := file.NewPage(fm.BlockSize())
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +32,7 @@ func NewLogManager(fm FileManager, logfile string) (LogManager, error) {
 			return nil, err
 		}
 	} else {
-		lm.currentblk, err = NewBlockId(logfile, logsize-1)
+		lm.currentblk, err = file.NewBlockId(logfile, logsize-1)
 		if err != nil {
 			return nil, err
 		}
@@ -42,10 +44,10 @@ func NewLogManager(fm FileManager, logfile string) (LogManager, error) {
 }
 
 type locallm struct {
-	fm             FileManager
+	fm             file.FileManager
 	logfile        string
-	logpage        *Page
-	currentblk     *BlockId
+	logpage        *file.Page
+	currentblk     *file.BlockId
 	latestLSN      int
 	latestSavedLSN int
 }
@@ -53,10 +55,10 @@ type locallm struct {
 func (lm *locallm) Append(rec []byte) (int, error) {
 	boundary := lm.logpage.Int(0)
 	recsize := len(rec)
-	bytesneeded := INT_SIZE + recsize
+	bytesneeded := file.INT_SIZE + recsize
 
 	// it does not fit
-	if boundary-bytesneeded < INT_SIZE {
+	if boundary-bytesneeded < file.INT_SIZE {
 		// so that we move to the next block
 		lm.flush()
 
@@ -98,7 +100,7 @@ func (lm *locallm) flush() error {
 	return nil
 }
 
-func (lm *locallm) appendBlk() (*BlockId, error) {
+func (lm *locallm) appendBlk() (*file.BlockId, error) {
 	blk, err := lm.fm.Append(lm.logfile)
 	if err != nil {
 		return nil, err

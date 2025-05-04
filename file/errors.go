@@ -1,11 +1,11 @@
-package storage
+package file
 
 import (
 	"fmt"
 	"strings"
 )
 
-var basename = "KANTHORKV.STORAGE"
+var basename = "KANTHORKV.FILE"
 
 func Errf(err string, args ...string) error {
 	return fmt.Errorf("%s.%s: %s", basename, err, strings.Join(args, " | "))

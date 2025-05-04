@@ -1,7 +1,9 @@
-package storage
+package log
 
-func NewLogIterator(fm FileManager, blk *BlockId) (*LogIterator, error) {
-	page, err := NewPage(fm.BlockSize())
+import "github.com/kanthorlabs/kanthorkv/file"
+
+func NewLogIterator(fm file.FileManager, blk *file.BlockId) (*LogIterator, error) {
+	page, err := file.NewPage(fm.BlockSize())
 	if err != nil {
 		return nil, err
 	}
@@ -22,9 +24,9 @@ func NewLogIterator(fm FileManager, blk *BlockId) (*LogIterator, error) {
 }
 
 type LogIterator struct {
-	fm         FileManager
-	blk        *BlockId
-	page       *Page
+	fm         file.FileManager
+	blk        *file.BlockId
+	page       *file.Page
 	currentpos int
 	boundary   int
 }
@@ -37,7 +39,7 @@ func (it *LogIterator) Next() ([]byte, error) {
 	// at the end of current block
 	if it.currentpos == it.fm.BlockSize() {
 		// move to previous block to continue reading
-		blk, err := NewBlockId(it.blk.Filename(), it.blk.Number()-1)
+		blk, err := file.NewBlockId(it.blk.Filename(), it.blk.Number()-1)
 		if err != nil {
 			return nil, err
 		}
@@ -47,11 +49,11 @@ func (it *LogIterator) Next() ([]byte, error) {
 	}
 
 	rec := it.page.Bytes(it.currentpos)
-	it.currentpos += INT_SIZE + len(rec)
+	it.currentpos += file.INT_SIZE + len(rec)
 	return rec, nil
 }
 
-func (it *LogIterator) moveToBlock(blk *BlockId) error {
+func (it *LogIterator) moveToBlock(blk *file.BlockId) error {
 	if err := it.fm.Read(blk, it.page); err != nil {
 		return err
 	}

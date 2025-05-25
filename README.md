@@ -72,3 +72,4 @@
 - 2025-03-09: [Implement file manager](docs/diary/2025-03-09.md)
 - 2025-05-03: [Database memory management](docs/diary/2025-05-03.md)
 - 2025-05-04: [Managing User Data](docs/diary/2025-05-04.md)
+- 2025-05-25: [Implement a Buffer Manager](docs/diary/2025-05-25.md)

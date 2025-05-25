@@ -11,9 +11,9 @@ func Errf(err string, args ...string) error {
 	return fmt.Errorf("%s.%s: %s", basename, err, strings.Join(args, " | "))
 }
 
-func ErrBMPinAbort(blknum int) error {
+func ErrBMPinTimeout(block string) error {
 	args := []string{
-		fmt.Sprintf("blknum=%d", blknum),
+		fmt.Sprintf("block=%s", block),
 	}
-	return Errf("BUFFER_MANANGER.PIN_ABORT", args...)
+	return Errf("BUFFER_MANANGER.PIN_TIMEOUT", args...)
 }

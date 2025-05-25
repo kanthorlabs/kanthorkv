@@ -4,6 +4,8 @@
 ## Credits
 
 - [Go implementation of SimpleDB from "Database Design and Implementation" - yokomotod](https://github.com/yokomotod/database-design-and-implementation-go)
+- [Building thread-safe abstractions in Java versus Go](https://rybicki.io/blog/2024/11/03/multithreaded-code-java-golang.html)
+- [simpledb-go](https://github.com/Chriscbr/simpledb-go)
 
 ## Guideline
 
@@ -70,3 +72,4 @@
 - 2025-03-09: [Implement file manager](docs/diary/2025-03-09.md)
 - 2025-05-03: [Database memory management](docs/diary/2025-05-03.md)
 - 2025-05-04: [Managing User Data](docs/diary/2025-05-04.md)
+- 2025-05-25: [Implement a Buffer Manager](docs/diary/2025-05-25.md)

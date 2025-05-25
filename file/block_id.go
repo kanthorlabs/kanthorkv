@@ -44,12 +44,8 @@ func (b *BlockId) Equals(other *BlockId) bool {
 	return b.filename == other.filename && b.blknum == other.blknum
 }
 
-func (b *BlockId) ToString() string {
-	return fmt.Sprintf("[file %s, block %d]", b.Filename(), b.Number())
-}
-
 func (b *BlockId) HashCode() int {
-	str := b.ToString()
+	str := b.String()
 	h := fnv.New32a()
 	h.Write([]byte(str))
 	return int(h.Sum32())

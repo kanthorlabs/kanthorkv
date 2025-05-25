@@ -1,6 +1,15 @@
 # KanthorKV
 > Key-Value database implementation based on database research at KanthorLabs
 
+## Overview
+
+KanthorKV is a research project at KanthorLabs to implement a key-value database inspired by the book "Database Design and Implementation" by Edward Sciore.
+
+The quote that inspired this project is:
+
+> “What I cannot create, I do not understand”
+> – Richard Feynman, Physicist and Nobel Prize Winner
+
 ## Credits
 
 - [Go implementation of SimpleDB from "Database Design and Implementation" - yokomotod](https://github.com/yokomotod/database-design-and-implementation-go)

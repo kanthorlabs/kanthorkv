@@ -57,8 +57,8 @@ func NewFileManager(dirname string, blksize int) (FileManager, error) {
 	fm := &localfm{
 		dirname: dirname,
 		blksize: blksize,
+		mu:      &sync.RWMutex{},
 		files:   make(map[string]*os.File),
-		mus:     make(map[string]*sync.Mutex),
 	}
 
 	// Set up the finalizer to ensure Close is called when garbage collected
@@ -72,14 +72,12 @@ func NewFileManager(dirname string, blksize int) (FileManager, error) {
 type localfm struct {
 	dirname string
 	blksize int
-	files   map[string]*os.File
-	mus     map[string]*sync.Mutex
+
+	mu    *sync.RWMutex
+	files map[string]*os.File
 }
 
 func (fm localfm) Read(blk *BlockId, page *Page) error {
-	fm.lock(blk.Filename())
-	defer fm.unlock(blk.Filename())
-
 	f, err := fm.open(blk.Filename())
 	if err != nil {
 		return err
@@ -98,9 +96,6 @@ func (fm localfm) Read(blk *BlockId, page *Page) error {
 }
 
 func (fm localfm) Write(blk *BlockId, page *Page) error {
-	fm.lock(blk.Filename())
-	defer fm.unlock(blk.Filename())
-
 	f, err := fm.open(blk.Filename())
 	if err != nil {
 		return err
@@ -120,9 +115,6 @@ func (fm localfm) Write(blk *BlockId, page *Page) error {
 
 func (fm localfm) Append(filename string) (*BlockId, error) {
 	// don't reuse the Length method to avoid the overhead of locking and unlocking
-	fm.lock(filename)
-	defer fm.unlock(filename)
-
 	f, err := fm.open(filename)
 	if err != nil {
 		return nil, err
@@ -152,9 +144,6 @@ func (fm localfm) Append(filename string) (*BlockId, error) {
 }
 
 func (fm localfm) Length(filename string) (int, error) {
-	fm.lock(filename)
-	defer fm.unlock(filename)
-
 	f, err := fm.open(filename)
 	if err != nil {
 		return 0, err
@@ -171,43 +160,27 @@ func (fm localfm) BlockSize() int {
 	return fm.blksize
 }
 
-func (fm localfm) lock(filename string) {
-	if _, ok := fm.mus[filename]; !ok {
-		fm.mus[filename] = &sync.Mutex{}
-	}
-
-	fm.mus[filename].Lock()
-}
-
-func (fm localfm) unlock(filename string) {
-	if _, ok := fm.mus[filename]; !ok {
-		log.Println(ErrFMUnlockUnknowFile(filename, nil).Error())
-	}
-
-	fm.mus[filename].Unlock()
-}
-
 func (fm localfm) open(filename string) (*os.File, error) {
+	fm.mu.RLock()
+	f, ok := fm.files[filename]
+	fm.mu.RUnlock()
+
+	if ok {
+		return f, nil
+	}
+
+	// If file isn't open, acquire write lock
+	fm.mu.Lock()
+	defer fm.mu.Unlock()
+
+	// Double-check after acquiring write lock
 	if f, ok := fm.files[filename]; ok {
 		return f, nil
 	}
 
 	filepath := path.Join(fm.dirname, filename)
-	if _, err := os.Stat(filepath); err != nil {
-		if !os.IsNotExist(err) {
-			return nil, ErrFMUnknown(fm.dirname, err)
-		}
-
-		f, err := os.OpenFile(filepath, os.O_RDWR|os.O_CREATE|os.O_SYNC, 0644)
-		if err != nil {
-			return nil, ErrFMCreateFile(filepath, err)
-		}
-		fm.files[filename] = f
-		return f, nil
-	}
-
 	// Open with both read and write access along with O_SYNC
-	f, err := os.OpenFile(filepath, os.O_RDWR|os.O_SYNC, 0644)
+	f, err := os.OpenFile(filepath, os.O_RDWR|os.O_CREATE|os.O_SYNC, 0644)
 	if err != nil {
 		return nil, ErrFMCreateOpenFile(filepath, err)
 	}
@@ -216,12 +189,9 @@ func (fm localfm) open(filename string) (*os.File, error) {
 }
 
 func (fm *localfm) finalize() {
-
 	for filename, f := range fm.files {
-		fm.lock(filename)
 		if err := f.Close(); err != nil {
 			log.Println(ErrFMFinalize(filename, err).Error())
 		}
-		fm.unlock(filename)
 	}
 }

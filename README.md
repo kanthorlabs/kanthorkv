@@ -15,6 +15,7 @@ The quote that inspired this project is:
 - [Go implementation of SimpleDB from "Database Design and Implementation" - yokomotod](https://github.com/yokomotod/database-design-and-implementation-go)
 - [Building thread-safe abstractions in Java versus Go](https://rybicki.io/blog/2024/11/03/multithreaded-code-java-golang.html)
 - [simpledb-go](https://github.com/Chriscbr/simpledb-go)
+- [simpledb](https://github.com/nakamasato/database-design-and-implementation/tree/main)
 
 ## Guideline
 

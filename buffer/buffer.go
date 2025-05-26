@@ -1,9 +1,13 @@
 package buffer
 
 import (
+	"sync/atomic"
+
 	"github.com/kanthorlabs/kanthorkv/file"
 	"github.com/kanthorlabs/kanthorkv/log"
 )
+
+var counter atomic.Uint32
 
 func NewBuffer(fm file.FileManager, lm log.LogManager) (*Buffer, error) {
 	p, err := file.NewPage(fm.BlockSize())
@@ -19,6 +23,8 @@ func NewBuffer(fm file.FileManager, lm log.LogManager) (*Buffer, error) {
 		lm:          lm,
 		pins:        0,
 		lsn:         -1,
+		// a hack to start the id from 0
+		id: int(counter.Add(1) - 1),
 	}
 	return buf, nil
 }
@@ -31,6 +37,7 @@ type Buffer struct {
 	lm          log.LogManager
 	pins        int
 	lsn         int
+	id          int
 }
 
 func (b *Buffer) SetModified(txnum int, lsn int) {

@@ -8,8 +8,6 @@ import (
 	"github.com/kanthorlabs/kanthorkv/log"
 )
 
-const MAX_TIME = 10 * time.Second
-
 type BufferManager interface {
 	Available() int
 	FlushAll(txnum int) error
@@ -19,11 +17,11 @@ type BufferManager interface {
 
 var _ BufferManager = (*localbm)(nil)
 
-func NewBufferManager(fm file.FileManager, lm log.LogManager, numbuffs int) (BufferManager, error) {
+func NewBufferManager(fm file.FileManager, lm log.LogManager, numbuffs int, maxtime time.Duration) (BufferManager, error) {
 	bm := &localbm{
 		bufferpool:   make([]*Buffer, numbuffs),
 		numavailable: numbuffs,
-		maxtime:      MAX_TIME,
+		maxtime:      maxtime,
 		mu:           &sync.Mutex{},
 		waiters:      make(map[int]chan bool),
 	}

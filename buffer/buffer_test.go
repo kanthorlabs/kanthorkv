@@ -4,6 +4,7 @@ import (
 	"os"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/jaswdr/faker/v2"
 	"github.com/kanthorlabs/kanthorkv/file"
@@ -14,6 +15,7 @@ import (
 const (
 	testBlockSize  = 400
 	testBufferSize = 10
+	testMaxTime    = time.Second * 10
 	testLogFile    = "testlog"
 )
 
@@ -35,13 +37,6 @@ func testdir(t *testing.T) string {
 
 }
 
-func testdirb(b *testing.B) string {
-	dir, err := os.MkdirTemp("", "kanthorkv-test-")
-	require.NoError(b, err)
-	return dir
-
-}
-
 // setupTest creates a test environment with file manager, log manager and buffer manager
 func setupTest(t *testing.T) (file.FileManager, log.LogManager, BufferManager, func()) {
 	dir := testdir(t)
@@ -59,7 +54,7 @@ func setupTest(t *testing.T) (file.FileManager, log.LogManager, BufferManager, f
 	require.NoError(t, err)
 
 	// Initialize buffer manager
-	bm, err := NewBufferManager(fm, lm, testBufferSize)
+	bm, err := NewBufferManager(fm, lm, testBufferSize, testMaxTime)
 	require.NoError(t, err)
 
 	// Return cleanup function

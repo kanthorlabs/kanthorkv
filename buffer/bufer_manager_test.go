@@ -92,23 +92,24 @@ func TestBufferReuse(t *testing.T) {
 }
 
 func TestBufferConcurrency(t *testing.T) {
-	_, _, bm, cleanup := setupTest(t)
+	fm, _, bm, cleanup := setupTest(t)
 	defer cleanup()
 
-	numWorkers := 10
-	numOperations := 100
+	numWorkers := testBufferSize + 5
+	numOperations := numWorkers * 10
 	var wg sync.WaitGroup
 
 	// Create blocks for testing
 	blocks := make([]*file.BlockId, numWorkers*2)
 	for i := range numWorkers * 2 {
-		var err error
-		blocks[i], err = file.NewBlockId(fmt.Sprintf("testfile%d", i), 0)
+		filename := fmt.Sprintf("testfile_%d", i)
+		blk, err := fm.Append(filename)
 		require.NoError(t, err)
+		blocks[i] = blk
 	}
 
 	// Start workers
-	for w := range numWorkers {
+	for workerId := range numWorkers {
 		wg.Add(1)
 		go func(workerId int) {
 			defer wg.Done()
@@ -125,7 +126,7 @@ func TestBufferConcurrency(t *testing.T) {
 				}
 
 				// Simulate some work
-				time.Sleep(time.Millisecond)
+				time.Sleep(time.Duration(fk.IntBetween(1, 10)) * time.Millisecond)
 
 				// Modify the buffer occasionally
 				if i%10 == 0 {
@@ -135,7 +136,7 @@ func TestBufferConcurrency(t *testing.T) {
 				// Unpin the buffer
 				bm.Unpin(buf)
 			}
-		}(w)
+		}(workerId)
 	}
 
 	// Wait for all workers to finish
@@ -164,7 +165,7 @@ func TestBufferPinTimeout(t *testing.T) {
 	assert.Equal(t, 0, bm.Available())
 
 	// Try to pin another block, should timeout
-	blk, err := file.NewBlockId("testfile_timeout", 0)
+	blk, err := fm.Append("testfile_timeout")
 	require.NoError(t, err)
 
 	// Start a goroutine to pin the block
@@ -181,7 +182,7 @@ func TestBufferPinTimeout(t *testing.T) {
 		// Should have timed out
 		assert.Error(t, pinErr)
 		assert.Contains(t, pinErr.Error(), "PIN_TIMEOUT")
-	case <-time.After(MAX_TIME + time.Second):
+	case <-time.After(testMaxTime + time.Second):
 		t.Fatal("Pin operation did not timeout as expected")
 	}
 
@@ -214,7 +215,7 @@ func TestBufferWaiting(t *testing.T) {
 	}()
 
 	// Unpin the buffer after a short delay
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(time.Duration(fk.IntBetween(50, 200)) * time.Millisecond)
 	bm.Unpin(buf)
 
 	// Wait for the second pin to complete
@@ -231,7 +232,7 @@ func TestBufferWaiting(t *testing.T) {
 }
 
 func TestConcurrentFlushAll(t *testing.T) {
-	_, _, bm, cleanup := setupTest(t)
+	fm, _, bm, cleanup := setupTest(t)
 	defer cleanup()
 
 	numWorkers := 5
@@ -241,9 +242,10 @@ func TestConcurrentFlushAll(t *testing.T) {
 	// Create blocks for testing
 	blocks := make([]*file.BlockId, numBlocks)
 	for i := range numBlocks {
-		var err error
-		blocks[i], err = file.NewBlockId(fmt.Sprintf("testfile%d", i), 0)
+		filename := fmt.Sprintf("testfile_%d", i)
+		blk, err := fm.Append(filename)
 		require.NoError(t, err)
+		blocks[i] = blk
 	}
 
 	// Start pin/unpin workers
@@ -268,7 +270,7 @@ func TestConcurrentFlushAll(t *testing.T) {
 				}
 
 				// Simulate some work
-				time.Sleep(time.Millisecond * 5)
+				time.Sleep(time.Duration(fk.IntBetween(50, 100)) * time.Millisecond)
 
 				// Unpin the buffer
 				bm.Unpin(buf)
@@ -290,7 +292,7 @@ func TestConcurrentFlushAll(t *testing.T) {
 				require.NoError(t, err)
 
 				// Simulate some work
-				time.Sleep(time.Millisecond * 10)
+				time.Sleep(time.Duration(fk.IntBetween(5, 20)) * time.Millisecond)
 			}
 		}(w)
 	}

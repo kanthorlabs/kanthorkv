@@ -9,11 +9,8 @@ import (
 
 var counter atomic.Uint32
 
-func NewBuffer(fm file.FileManager, lm log.LogManager) (*Buffer, error) {
-	p, err := file.NewPage(fm.BlockSize())
-	if err != nil {
-		return nil, err
-	}
+func NewBuffer(fm file.FileManager, lm log.LogManager) *Buffer {
+	p := file.NewPage(fm.BlockSize())
 
 	buf := &Buffer{
 		Contents:    p,
@@ -26,7 +23,7 @@ func NewBuffer(fm file.FileManager, lm log.LogManager) (*Buffer, error) {
 		// a hack to start the id from 0
 		id: int(counter.Add(1) - 1),
 	}
-	return buf, nil
+	return buf
 }
 
 type Buffer struct {

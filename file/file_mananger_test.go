@@ -16,14 +16,10 @@ func TestFileManager(t *testing.T) {
 	require.NotNil(t, fm)
 
 	filename := fk.RandomStringWithLength(8)
-	blk, err := NewBlockId(filename, 2)
-	require.NoError(t, err)
-	require.NotNil(t, blk)
+	blk := NewBlockId(filename, 2)
 
 	// first page
-	p1, err := NewPage(fm.BlockSize())
-	require.NoError(t, err)
-	require.NotNil(t, p1)
+	p1 := NewPage(fm.BlockSize())
 
 	pos1 := 88
 	str1 := fk.RandomStringWithLength(15)
@@ -36,9 +32,7 @@ func TestFileManager(t *testing.T) {
 	require.NoError(t, fm.Write(blk, p1))
 
 	// second page
-	p2, err := NewPage(fm.BlockSize())
-	require.NoError(t, err)
-	require.NotNil(t, p2)
+	p2 := NewPage(fm.BlockSize())
 
 	require.NoError(t, fm.Read(blk, p2))
 
@@ -104,8 +98,7 @@ func TestFileManagerMultipleFiles(t *testing.T) {
 	blk1, err := fm.Append(filename1)
 	require.NoError(t, err)
 
-	p1, err := NewPage(fm.BlockSize())
-	require.NoError(t, err)
+	p1 := NewPage(fm.BlockSize())
 
 	pos1 := 100
 	val1 := fk.RandomStringWithLength(10)
@@ -117,8 +110,7 @@ func TestFileManagerMultipleFiles(t *testing.T) {
 	blk2, err := fm.Append(filename2)
 	require.NoError(t, err)
 
-	p2, err := NewPage(fm.BlockSize())
-	require.NoError(t, err)
+	p2 := NewPage(fm.BlockSize())
 
 	pos2 := 200
 	val2 := fk.RandomStringWithLength(10)
@@ -127,13 +119,11 @@ func TestFileManagerMultipleFiles(t *testing.T) {
 	require.NoError(t, fm.Write(blk2, p2))
 
 	// Verify data in both files
-	p1Read, err := NewPage(fm.BlockSize())
-	require.NoError(t, err)
+	p1Read := NewPage(fm.BlockSize())
 	require.NoError(t, fm.Read(blk1, p1Read))
 	require.Equal(t, val1, p1Read.String(pos1))
 
-	p2Read, err := NewPage(fm.BlockSize())
-	require.NoError(t, err)
+	p2Read := NewPage(fm.BlockSize())
 	require.NoError(t, fm.Read(blk2, p2Read))
 	require.Equal(t, val2, p2Read.String(pos2))
 
@@ -160,8 +150,7 @@ func TestFileManagerBlockSize(t *testing.T) {
 		require.Equal(t, size, fm.BlockSize())
 
 		// Test that pages created with this block size work correctly
-		p, err := NewPage(fm.BlockSize())
-		require.NoError(t, err)
+		p := NewPage(fm.BlockSize())
 		require.Equal(t, size, len(p.buffer))
 	}
 }
@@ -177,8 +166,7 @@ func TestFileManagerReadWriteMultiplePositions(t *testing.T) {
 	blk, err := fm.Append(filename)
 	require.NoError(t, err)
 
-	page, err := NewPage(fm.BlockSize())
-	require.NoError(t, err)
+	page := NewPage(fm.BlockSize())
 
 	// Write different data types at different positions
 	positions := []struct {
@@ -204,8 +192,7 @@ func TestFileManagerReadWriteMultiplePositions(t *testing.T) {
 	require.NoError(t, fm.Write(blk, page))
 
 	// Read it back
-	readPage, err := NewPage(fm.BlockSize())
-	require.NoError(t, err)
+	readPage := NewPage(fm.BlockSize())
 	require.NoError(t, fm.Read(blk, readPage))
 
 	// Verify all values

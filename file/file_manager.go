@@ -125,10 +125,7 @@ func (fm localfm) Append(filename string) (*BlockId, error) {
 	}
 	blknum := int(stat.Size() / int64(fm.blksize))
 
-	blk, err := NewBlockId(filename, blknum)
-	if err != nil {
-		return nil, ErrFMAppendNewBlock(fm.dirname, filename, blknum, err)
-	}
+	blk := NewBlockId(filename, blknum)
 
 	bytes := make([]byte, fm.blksize)
 	pos := blk.Number() * fm.blksize

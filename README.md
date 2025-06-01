@@ -24,3 +24,4 @@ The quote that inspired this project is:
 - 2025-05-03: [Database memory management](docs/diary/2025-05-03.md)
 - 2025-05-04: [Managing User Data](docs/diary/2025-05-04.md)
 - 2025-05-25: [Implement a Buffer Manager](docs/diary/2025-05-25.md)
+- 2025-06-01: [Implement Transaction Manager](docs/diary/2025-06-01.md)

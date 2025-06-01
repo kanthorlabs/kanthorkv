@@ -27,11 +27,7 @@ func NewBufferManager(fm file.FileManager, lm log.LogManager, numbuffs int, maxt
 	}
 
 	for i := range numbuffs {
-		buf, err := NewBuffer(fm, lm)
-		if err != nil {
-			return nil, err
-		}
-		bm.bufferpool[i] = buf
+		bm.bufferpool[i] = NewBuffer(fm, lm)
 	}
 
 	return bm, nil

@@ -4,18 +4,18 @@ import (
 	"encoding/binary"
 )
 
-func NewPage(blksize int) (*Page, error) {
+func NewPage(blksize int) *Page {
 	if blksize <= 0 {
-		return nil, ErrPageInvalidBlockSize(blksize)
+		panic(ErrPageInvalidBlockSize(blksize))
 	}
-	return &Page{buffer: make([]byte, blksize)}, nil
+	return &Page{buffer: make([]byte, blksize)}
 }
 
-func NewPageWithBuffer(buffer []byte) (*Page, error) {
+func NewPageWithBuffer(buffer []byte) *Page {
 	if len(buffer) <= 0 {
-		return nil, ErrPageInvalidBlockSize(len(buffer))
+		panic(ErrPageInvalidBlockSize(len(buffer)))
 	}
-	return &Page{buffer: buffer}, nil
+	return &Page{buffer: buffer}
 }
 
 // Page is a object that holds contains of a disk block on memory.

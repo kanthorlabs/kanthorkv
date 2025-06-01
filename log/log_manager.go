@@ -11,10 +11,7 @@ type LogManager interface {
 }
 
 func NewLogManager(fm file.FileManager, logfile string) (LogManager, error) {
-	logpage, err := file.NewPage(fm.BlockSize())
-	if err != nil {
-		return nil, err
-	}
+	logpage := file.NewPage(fm.BlockSize())
 	logsize, err := fm.Length(logfile)
 	if err != nil {
 		return nil, err
@@ -34,10 +31,7 @@ func NewLogManager(fm file.FileManager, logfile string) (LogManager, error) {
 			return nil, err
 		}
 	} else {
-		lm.currentblk, err = file.NewBlockId(logfile, logsize-1)
-		if err != nil {
-			return nil, err
-		}
+		lm.currentblk = file.NewBlockId(logfile, logsize-1)
 		if err := fm.Read(lm.currentblk, lm.logpage); err != nil {
 			return nil, err
 		}

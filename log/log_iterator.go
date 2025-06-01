@@ -3,10 +3,7 @@ package log
 import "github.com/kanthorlabs/kanthorkv/file"
 
 func NewLogIterator(fm file.FileManager, blk *file.BlockId) (*LogIterator, error) {
-	page, err := file.NewPage(fm.BlockSize())
-	if err != nil {
-		return nil, err
-	}
+	page := file.NewPage(fm.BlockSize())
 
 	it := &LogIterator{
 		fm:         fm,
@@ -39,10 +36,7 @@ func (it *LogIterator) Next() ([]byte, error) {
 	// at the end of current block
 	if it.currentpos == it.fm.BlockSize() {
 		// move to previous block to continue reading
-		blk, err := file.NewBlockId(it.blk.Filename(), it.blk.Number()-1)
-		if err != nil {
-			return nil, err
-		}
+		blk := file.NewBlockId(it.blk.Filename(), it.blk.Number()-1)
 		if err := it.moveToBlock(blk); err != nil {
 			return nil, err
 		}

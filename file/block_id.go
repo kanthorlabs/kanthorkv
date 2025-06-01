@@ -12,16 +12,16 @@ type BlockId struct {
 }
 
 // NewBlockId creates a new BlockId with the given filename and block number
-func NewBlockId(filename string, blknum int) (*BlockId, error) {
+func NewBlockId(filename string, blknum int) *BlockId {
 	if filename == "" {
-		return nil, ErrBlockIdFilenameEmpty()
+		panic(ErrBlockIdFilenameEmpty())
 	}
 
 	if blknum < 0 {
-		return nil, ErrBlockIdInvalidBlockNumber(blknum)
+		panic(ErrBlockIdInvalidBlockNumber(blknum))
 	}
 
-	return &BlockId{filename: filename, blknum: blknum}, nil
+	return &BlockId{filename: filename, blknum: blknum}
 }
 
 // Filename returns the name of the file this block belongs to

@@ -46,8 +46,8 @@ func TestBufferBasicOperations(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify the data was written to disk
-	page2, err := file.NewPage(fm.BlockSize())
-	require.NoError(t, err)
+	page2 := file.NewPage(fm.BlockSize())
+
 	err = fm.Read(blk, page2)
 	require.NoError(t, err)
 	assert.Equal(t, "test data", page2.String(0))

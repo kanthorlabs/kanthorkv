@@ -2,7 +2,7 @@ package recovery
 
 import (
 	"github.com/kanthorlabs/kanthorkv/file"
-	"github.com/kanthorlabs/kanthorkv/tx"
+	"github.com/kanthorlabs/kanthorkv/tx/transaction"
 )
 
 type LogOperation int
@@ -19,7 +19,7 @@ const (
 type LogRecord interface {
 	Op() int
 	TxNumber() int
-	Undo(tx tx.Transaction) error
+	Undo(tx transaction.Transaction) error
 }
 
 func NewLogRecord(bytes []byte) (LogRecord, error) {

@@ -2,8 +2,8 @@ package recovery
 
 import (
 	"github.com/kanthorlabs/kanthorkv/buffer"
-	logm "github.com/kanthorlabs/kanthorkv/log"
-	"github.com/kanthorlabs/kanthorkv/tx"
+	"github.com/kanthorlabs/kanthorkv/log"
+	"github.com/kanthorlabs/kanthorkv/tx/transaction"
 )
 
 var _ RecoveryManager = (*localrm)(nil)
@@ -17,14 +17,14 @@ type RecoveryManager interface {
 	SetString(buff buffer.Buffer, offset int, newval string) (int, error)
 }
 
-func NewRecoveryManager(lm logm.LogManager, bm buffer.BufferManager, tx tx.Transaction, txnum int) (RecoveryManager, error) {
+func NewRecoveryManager(lm log.LogManager, bm buffer.BufferManager, tx transaction.Transaction, txnum int) (RecoveryManager, error) {
 	return &localrm{lm: lm, bm: bm, tx: tx, txnum: txnum}, nil
 }
 
 type localrm struct {
-	lm    logm.LogManager
+	lm    log.LogManager
 	bm    buffer.BufferManager
-	tx    tx.Transaction
+	tx    transaction.Transaction
 	txnum int
 }
 

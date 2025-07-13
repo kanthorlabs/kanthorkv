@@ -3,7 +3,7 @@ package recovery
 import (
 	"github.com/kanthorlabs/kanthorkv/file"
 	"github.com/kanthorlabs/kanthorkv/log"
-	"github.com/kanthorlabs/kanthorkv/tx"
+	"github.com/kanthorlabs/kanthorkv/tx/transaction"
 )
 
 var _ LogRecord = (*LogRecordCheckpoint)(nil)
@@ -22,7 +22,7 @@ func (lr *LogRecordCheckpoint) TxNumber() int {
 	return -1 // dummy value, as checkpoints are not associated with a specific transaction
 }
 
-func (lr *LogRecordCheckpoint) Undo(tx tx.Transaction) (err error) {
+func (lr *LogRecordCheckpoint) Undo(tx transaction.Transaction) (err error) {
 	return nil
 }
 

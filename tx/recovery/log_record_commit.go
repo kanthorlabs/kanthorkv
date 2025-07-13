@@ -5,7 +5,7 @@ import (
 
 	"github.com/kanthorlabs/kanthorkv/file"
 	"github.com/kanthorlabs/kanthorkv/log"
-	"github.com/kanthorlabs/kanthorkv/tx"
+	"github.com/kanthorlabs/kanthorkv/tx/transaction"
 )
 
 var _ LogRecord = (*LogRecordCommit)(nil)
@@ -29,7 +29,7 @@ func (lr *LogRecordCommit) TxNumber() int {
 	return lr.txnum
 }
 
-func (lr *LogRecordCommit) Undo(tx tx.Transaction) (err error) {
+func (lr *LogRecordCommit) Undo(tx transaction.Transaction) (err error) {
 	return nil
 }
 

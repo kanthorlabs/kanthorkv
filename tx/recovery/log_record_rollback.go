@@ -5,7 +5,7 @@ import (
 
 	"github.com/kanthorlabs/kanthorkv/file"
 	"github.com/kanthorlabs/kanthorkv/log"
-	"github.com/kanthorlabs/kanthorkv/tx"
+	"github.com/kanthorlabs/kanthorkv/tx/transaction"
 )
 
 var _ LogRecord = (*LogRecordRollback)(nil)
@@ -29,7 +29,7 @@ func (lr *LogRecordRollback) TxNumber() int {
 	return lr.txnum
 }
 
-func (lr *LogRecordRollback) Undo(tx tx.Transaction) (err error) {
+func (lr *LogRecordRollback) Undo(tx transaction.Transaction) (err error) {
 	return nil
 }
 

@@ -1,10 +1,11 @@
-package tx
+package recovery
 
 import (
 	"fmt"
 
 	"github.com/kanthorlabs/kanthorkv/file"
 	"github.com/kanthorlabs/kanthorkv/log"
+	"github.com/kanthorlabs/kanthorkv/tx"
 )
 
 var _ LogRecord = (*LogRecordCommit)(nil)
@@ -28,7 +29,7 @@ func (lr *LogRecordCommit) TxNumber() int {
 	return lr.txnum
 }
 
-func (lr *LogRecordCommit) Undo(tx Transaction) (err error) {
+func (lr *LogRecordCommit) Undo(tx tx.Transaction) (err error) {
 	return nil
 }
 
@@ -36,9 +37,10 @@ func (lr *LogRecordCommit) String() string {
 	return fmt.Sprintf("<COMMIT %d>", lr.txnum)
 }
 
-func WriteCommitLogRecord(lm log.LogManager) (int, error) {
-	rec := make([]byte, file.INT_SIZE)
+func WriteCommitLogRecord(lm log.LogManager, txnum int) (int, error) {
+	rec := make([]byte, file.INT_SIZE*2)
 	p := file.NewPageWithBuffer(rec)
 	p.SetInt(0, int(OpCommit))
+	p.SetInt(file.INT_SIZE, txnum)
 	return lm.Append(rec)
 }

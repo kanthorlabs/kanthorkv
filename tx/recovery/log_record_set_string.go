@@ -1,4 +1,4 @@
-package tx
+package recovery
 
 import (
 	"errors"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/kanthorlabs/kanthorkv/file"
 	"github.com/kanthorlabs/kanthorkv/log"
+	"github.com/kanthorlabs/kanthorkv/tx"
 )
 
 var _ LogRecord = (*LogRecordSetString)(nil)
@@ -51,7 +52,7 @@ func (lr *LogRecordSetString) TxNumber() int {
 	return lr.txnum
 }
 
-func (lr *LogRecordSetString) Undo(tx Transaction) (err error) {
+func (lr *LogRecordSetString) Undo(tx tx.Transaction) (err error) {
 	if err := tx.Pin(lr.blk); err != nil {
 		return err
 	}

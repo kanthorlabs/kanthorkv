@@ -172,7 +172,7 @@ func TestFileManagerReadWriteMultiplePositions(t *testing.T) {
 	positions := []struct {
 		pos   int
 		isInt bool
-		val   interface{}
+		val   any
 	}{
 		{50, true, 12345},
 		{100, false, "Hello World"},

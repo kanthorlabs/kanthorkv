@@ -1,7 +1,7 @@
 .PHONY: test coverage clean
 
 # Default Go test flags
-GOTEST_FLAGS := -v
+GOTEST_FLAGS := -v -timeout 5m -count=1
 
 # Default package path (all packages)
 PKG_PATH := ./...

@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-var basename = "KANTHORKV.TX"
+var basename = "KANTHORKV.TX.RECOVERY"
 
 func Errf(err string, args ...string) error {
 	return fmt.Errorf("%s.%s: %s", basename, err, strings.Join(args, " | "))

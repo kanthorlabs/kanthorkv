@@ -3,7 +3,6 @@ package concurrency
 import (
 	"strconv"
 	"sync"
-	"sync/atomic"
 	"testing"
 
 	"github.com/kanthorlabs/kanthorkv/file"
@@ -22,7 +21,7 @@ func TestLockTable_SLock(t *testing.T) {
 			wg.Add(1)
 			go func(j int) {
 				defer wg.Done()
-				blk := file.NewBlockId(dir+strconv.Itoa(j), 0)
+				blk := file.NewBlockId(dir+"/"+strconv.Itoa(j), 0)
 				require.NoError(t, lt.SLock(blk))
 			}(i)
 		}
@@ -33,7 +32,7 @@ func TestLockTable_SLock(t *testing.T) {
 		lt := NewLockTable()
 
 		var wg sync.WaitGroup
-		blk := file.NewBlockId(dir+strconv.Itoa(0), 0)
+		blk := file.NewBlockId(dir+"/"+strconv.Itoa(0), 0)
 
 		for range counter {
 			wg.Add(1)
@@ -49,7 +48,7 @@ func TestLockTable_SLock(t *testing.T) {
 		dir := testdir(t)
 		lt := NewLockTable()
 
-		blk := file.NewBlockId(dir+strconv.Itoa(0), 0)
+		blk := file.NewBlockId(dir+"/"+strconv.Itoa(0), 0)
 		require.NoError(t, lt.XLock(blk))
 
 		var wg sync.WaitGroup
@@ -58,7 +57,7 @@ func TestLockTable_SLock(t *testing.T) {
 			go func(j int) {
 				defer wg.Done()
 				if i == counter/2 {
-					require.NoError(t, lt.Unlock(blk))
+					lt.Unlock(blk)
 				}
 				require.NoError(t, lt.SLock(blk))
 			}(i)
@@ -70,7 +69,7 @@ func TestLockTable_SLock(t *testing.T) {
 		dir := testdir(t)
 		lt := NewLockTable()
 
-		blk := file.NewBlockId(dir+strconv.Itoa(0), 0)
+		blk := file.NewBlockId(dir+"/"+strconv.Itoa(0), 0)
 		require.NoError(t, lt.XLock(blk))
 
 		var wg sync.WaitGroup
@@ -97,7 +96,7 @@ func TestLockTable_XLock(t *testing.T) {
 			wg.Add(1)
 			go func(j int) {
 				defer wg.Done()
-				blk := file.NewBlockId(dir+strconv.Itoa(j), 0)
+				blk := file.NewBlockId(dir+"/"+strconv.Itoa(j), 0)
 				require.NoError(t, lt.XLock(blk))
 			}(i)
 		}
@@ -108,62 +107,27 @@ func TestLockTable_XLock(t *testing.T) {
 		dir := testdir(t)
 		lt := NewLockTable()
 
-		var wg sync.WaitGroup
-		blk := file.NewBlockId(dir+strconv.Itoa(0), 0)
+		blk := file.NewBlockId(dir+"/"+strconv.Itoa(0), 0)
 		require.NoError(t, lt.XLock(blk))
-
-		for i := range counter {
-			wg.Add(1)
-			go func(j int) {
-				defer wg.Done()
-				require.ErrorContains(t, lt.XLock(blk), "LOCK.ABORT")
-			}(i)
-		}
-		wg.Wait()
+		require.NoError(t, lt.XLock(blk))
 	})
 
 	t.Run("acquire XLock on the block that has SLock", func(t *testing.T) {
 		dir := testdir(t)
 		lt := NewLockTable()
 
-		blk := file.NewBlockId(dir+strconv.Itoa(0), 0)
+		blk := file.NewBlockId(dir+"/"+strconv.Itoa(0), 0)
+
 		require.NoError(t, lt.SLock(blk))
+		// Lock escalation: SLock to XLock
+		require.NoError(t, lt.XLock(blk))
 
-		var noErrCounter atomic.Int32
-		var wg sync.WaitGroup
-		for i := range counter {
-			wg.Add(1)
-			go func(j int) {
-				defer wg.Done()
-				if i%10 == 0 {
-					require.NoError(t, lt.Unlock(blk))
-				}
+		// release all locks
+		lt.Unlock(blk)
 
-				if lt.XLock(blk) == nil {
-					noErrCounter.Add(1)
-				}
-			}(i)
-		}
-		wg.Wait()
-
-		require.Equal(t, int(noErrCounter.Load()), counter/10+1)
-	})
-
-	t.Run("acquire XLock on the block that has SLock and TIMEOUT", func(t *testing.T) {
-		dir := testdir(t)
-		lt := NewLockTable()
-
-		blk := file.NewBlockId(dir+strconv.Itoa(0), 0)
+		// acquire 2 SLocks and then XLock
 		require.NoError(t, lt.SLock(blk))
-
-		var wg sync.WaitGroup
-		for range counter {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				require.ErrorContains(t, lt.XLock(blk), "LOCK.ABORT")
-			}()
-		}
-		wg.Wait()
+		require.NoError(t, lt.SLock(blk))
+		require.ErrorContains(t, lt.XLock(blk), "LOCK.ABORT")
 	})
 }

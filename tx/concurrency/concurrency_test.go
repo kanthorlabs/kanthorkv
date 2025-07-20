@@ -24,5 +24,4 @@ func testdir(t *testing.T) string {
 	dir, err := os.MkdirTemp("", "kanthorkv-test-")
 	require.NoError(t, err)
 	return dir
-
 }

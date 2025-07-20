@@ -9,17 +9,17 @@ import (
 
 const MAX_WAIT_TIME = 10 * time.Second
 
-type LockTable struct {
-	mu      sync.Mutex
-	locks   map[*file.BlockId]int
-	waiters map[*file.BlockId]chan struct{}
-}
-
 func NewLockTable() *LockTable {
 	return &LockTable{
 		locks:   make(map[*file.BlockId]int),
 		waiters: make(map[*file.BlockId]chan struct{}),
 	}
+}
+
+type LockTable struct {
+	mu      sync.Mutex
+	locks   map[*file.BlockId]int
+	waiters map[*file.BlockId]chan struct{}
 }
 
 func (lt *LockTable) SLock(blk *file.BlockId) error {
@@ -44,7 +44,7 @@ func (lt *LockTable) SLock(blk *file.BlockId) error {
 		}
 	}
 
-	val := lt.locks[blk] // will not be negative
+	val := lt.locks[blk]
 	lt.locks[blk] = val + 1
 	lt.mu.Unlock()
 	return nil
@@ -54,7 +54,9 @@ func (lt *LockTable) XLock(blk *file.BlockId) error {
 	lt.mu.Lock()
 
 	start := time.Now()
-	for lt.locks[blk] != 0 {
+	// We assume the client always acquire a SLock before trying to acquire an XLock
+	// The purpose of this is to ensure lock escalation and lock queue are handled correctly
+	for lt.locks[blk] > 1 {
 		ch := lt.channel(blk)
 		// Unlock the mutex so that other transactions can join the waitlist
 		lt.mu.Unlock()
@@ -77,7 +79,7 @@ func (lt *LockTable) XLock(blk *file.BlockId) error {
 	return nil
 }
 
-func (lt *LockTable) Unlock(blk *file.BlockId) error {
+func (lt *LockTable) Unlock(blk *file.BlockId) {
 	lt.mu.Lock()
 	defer lt.mu.Unlock()
 
@@ -94,7 +96,6 @@ func (lt *LockTable) Unlock(blk *file.BlockId) error {
 		close(ch)
 		delete(lt.waiters, blk)
 	}
-	return nil
 }
 
 func (lt *LockTable) channel(blk *file.BlockId) chan struct{} {

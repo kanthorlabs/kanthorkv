@@ -26,3 +26,4 @@ The quote that inspired this project is:
 - 2025-05-25: [Implement a Buffer Manager](docs/diary/2025-05-25.md)
 - 2025-06-01: [Implement Transaction Manager](docs/diary/2025-06-01.md)
 - 2025-07-20: [Implement Transaction Manager](docs/diary/2025-07-20.md)
+- 2025-08-03: [Implement Transaction](docs/diary/2025-08-03.md)

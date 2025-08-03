@@ -13,12 +13,12 @@ type RecoveryManager interface {
 	Commit() error
 	Rollback() error
 	Recover() error
-	SetInt(buff buffer.Buffer, offset int, newval int) (int, error)
-	SetString(buff buffer.Buffer, offset int, newval string) (int, error)
+	SetInt(buff *buffer.Buffer, offset int, newval int) (int, error)
+	SetString(buff *buffer.Buffer, offset int, newval string) (int, error)
 }
 
-func NewRecoveryManager(lm log.LogManager, bm buffer.BufferManager, tx transaction.Transaction, txnum int) (RecoveryManager, error) {
-	return &localrm{lm: lm, bm: bm, tx: tx, txnum: txnum}, nil
+func NewRecoveryManager(lm log.LogManager, bm buffer.BufferManager, tx transaction.Transaction, txnum int) RecoveryManager {
+	return &localrm{lm: lm, bm: bm, tx: tx, txnum: txnum}
 }
 
 type localrm struct {
@@ -125,13 +125,13 @@ func (rm *localrm) recover() error {
 }
 
 // newval isn't used because the recovery algorithm is undo-only
-func (rm *localrm) SetInt(buff buffer.Buffer, offset int, newval int) (int, error) {
+func (rm *localrm) SetInt(buff *buffer.Buffer, offset int, newval int) (int, error) {
 	oldval := buff.Contents.Int(offset)
 	return WriteSetIntLogRecord(rm.lm, rm.txnum, buff.Block, offset, oldval)
 }
 
 // newval isn't used because the recovery algorithm is undo-only
-func (rm *localrm) SetString(buff buffer.Buffer, offset int, newval string) (int, error) {
+func (rm *localrm) SetString(buff *buffer.Buffer, offset int, newval string) (int, error) {
 	oldval := buff.Contents.String(offset)
 	return WriteSetStringLogRecord(rm.lm, rm.txnum, buff.Block, offset, oldval)
 }

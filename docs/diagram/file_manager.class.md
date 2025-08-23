@@ -1,3 +1,4 @@
+```mermaid
 classDiagram
     class FileManager {
         +Read(blk, page) error
@@ -44,3 +45,4 @@ classDiagram
     FileManager <|.. localfm
     localfm --> BlockId : uses
     localfm --> Page : uses
+```

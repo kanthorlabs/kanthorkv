@@ -1,3 +1,4 @@
+```mermaid
 classDiagram
     class LogManager {
         +Append(rec) int, error
@@ -39,3 +40,4 @@ classDiagram
     LogIterator --> FileManager : uses
     LogIterator --> BlockId : uses
     LogIterator --> Page : uses
+```

@@ -12,9 +12,9 @@ const (
 	RecordUsed
 )
 
-func NewRecord(tx transaction.Transaction, blk *file.BlockId, layout *Layout) *Record {
+func NewRecordPage(tx transaction.Transaction, blk *file.BlockId, layout *Layout) *RecordPage {
 	tx.Pin(blk)
-	return &Record{
+	return &RecordPage{
 		tx:     tx,
 		blk:    blk,
 		layout: layout,
@@ -22,72 +22,72 @@ func NewRecord(tx transaction.Transaction, blk *file.BlockId, layout *Layout) *R
 }
 
 // Slot based implementation
-type Record struct {
+type RecordPage struct {
 	tx     transaction.Transaction
 	blk    *file.BlockId
 	layout *Layout
 }
 
-func (r *Record) Block() *file.BlockId {
-	return r.blk
+func (rp *RecordPage) Block() *file.BlockId {
+	return rp.blk
 }
 
-func (r *Record) GetInt(slot int, fldname string) (int, error) {
-	fldpos := r.offset(slot) + r.layout.Offset(fldname)
-	return r.tx.GetInt(r.blk, fldpos)
+func (rp *RecordPage) GetInt(slot int, fldname string) (int, error) {
+	fldpos := rp.offset(slot) + rp.layout.Offset(fldname)
+	return rp.tx.GetInt(rp.blk, fldpos)
 }
 
-func (r *Record) SetInt(slot int, fldname string, val int) error {
-	fldpos := r.offset(slot) + r.layout.Offset(fldname)
-	return r.tx.SetInt(r.blk, fldpos, val, true)
+func (rp *RecordPage) SetInt(slot int, fldname string, val int) error {
+	fldpos := rp.offset(slot) + rp.layout.Offset(fldname)
+	return rp.tx.SetInt(rp.blk, fldpos, val, true)
 }
 
-func (r *Record) GetString(slot int, fldname string) (string, error) {
-	fldpos := r.offset(slot) + r.layout.Offset(fldname)
-	return r.tx.GetString(r.blk, fldpos)
+func (rp *RecordPage) GetString(slot int, fldname string) (string, error) {
+	fldpos := rp.offset(slot) + rp.layout.Offset(fldname)
+	return rp.tx.GetString(rp.blk, fldpos)
 }
 
-func (r *Record) SetString(slot int, fldname string, val string) error {
-	fldpos := r.offset(slot) + r.layout.Offset(fldname)
-	return r.tx.SetString(r.blk, fldpos, val, true)
+func (rp *RecordPage) SetString(slot int, fldname string, val string) error {
+	fldpos := rp.offset(slot) + rp.layout.Offset(fldname)
+	return rp.tx.SetString(rp.blk, fldpos, val, true)
 }
 
-func (r *Record) Delete(slot int) error {
-	return r.setFlag(slot, RecordEmpty)
+func (rp *RecordPage) Delete(slot int) error {
+	return rp.setFlag(slot, RecordEmpty)
 }
 
-func (r *Record) Format() {
+func (rp *RecordPage) Format() {
 	slot := 0
-	for r.isValidSlot(slot) {
-		r.tx.SetInt(r.blk, r.offset(slot), int(RecordEmpty), false)
-		for _, fldname := range r.layout.sch.Fields() {
-			fldpos := r.offset(slot) + r.layout.Offset(fldname)
-			if r.layout.sch.Type(fldname) == IntegerField {
-				r.tx.SetInt(r.blk, fldpos, 0, false)
+	for rp.isValidSlot(slot) {
+		rp.tx.SetInt(rp.blk, rp.offset(slot), int(RecordEmpty), false)
+		for _, fldname := range rp.layout.sch.Fields() {
+			fldpos := rp.offset(slot) + rp.layout.Offset(fldname)
+			if rp.layout.sch.Type(fldname) == IntegerField {
+				rp.tx.SetInt(rp.blk, fldpos, 0, false)
 			} else {
-				r.tx.SetString(r.blk, fldpos, "", false)
+				rp.tx.SetString(rp.blk, fldpos, "", false)
 			}
 		}
 		slot++
 	}
 }
 
-func (r *Record) NextAfter(slot int) int {
-	return r.SearchAfter(slot, RecordUsed)
+func (rp *RecordPage) NextAfter(slot int) int {
+	return rp.SearchAfter(slot, RecordUsed)
 }
 
-func (r *Record) InsertAfter(slot int) int {
-	newslot := r.SearchAfter(slot, RecordUsed)
+func (rp *RecordPage) InsertAfter(slot int) int {
+	newslot := rp.SearchAfter(slot, RecordUsed)
 	if newslot > 0 {
-		r.setFlag(newslot, RecordUsed)
+		rp.setFlag(newslot, RecordUsed)
 	}
 	return newslot
 }
 
-func (r *Record) SearchAfter(slot int, flag RecordFlag) int {
+func (rp *RecordPage) SearchAfter(slot int, flag RecordFlag) int {
 	slot++
-	for r.isValidSlot(slot) {
-		slotflag, err := r.tx.GetInt(r.blk, r.offset(slot))
+	for rp.isValidSlot(slot) {
+		slotflag, err := rp.tx.GetInt(rp.blk, rp.offset(slot))
 		if err != nil {
 			panic(err)
 		}
@@ -101,14 +101,14 @@ func (r *Record) SearchAfter(slot int, flag RecordFlag) int {
 	return -1
 }
 
-func (r *Record) setFlag(slot int, usage RecordFlag) error {
-	return r.tx.SetInt(r.blk, r.offset(slot), int(usage), true)
+func (rp *RecordPage) setFlag(slot int, usage RecordFlag) error {
+	return rp.tx.SetInt(rp.blk, rp.offset(slot), int(usage), true)
 }
 
-func (r *Record) isValidSlot(slot int) bool {
-	return r.offset(slot+1) <= r.tx.BlockSize()
+func (rp *RecordPage) isValidSlot(slot int) bool {
+	return rp.offset(slot+1) <= rp.tx.BlockSize()
 }
 
-func (r *Record) offset(slot int) int {
-	return slot * r.layout.SlotSize()
+func (rp *RecordPage) offset(slot int) int {
+	return slot * rp.layout.SlotSize()
 }

@@ -22,7 +22,6 @@ func NewBufferManager(fm file.FileManager, lm log.LogManager, numbuffs int, maxt
 		bufferpool:   make([]*Buffer, numbuffs),
 		numavailable: numbuffs,
 		maxtime:      maxtime,
-		mu:           &sync.Mutex{},
 		waiters:      make(map[int]chan bool),
 	}
 
@@ -38,7 +37,7 @@ type localbm struct {
 	numavailable int
 	maxtime      time.Duration
 
-	mu      *sync.Mutex
+	mu      sync.Mutex
 	waiters map[int]chan bool
 }
 

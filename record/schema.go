@@ -1,11 +1,19 @@
 package record
 
+// NewSchema creates a new Schema instance.
+func NewSchema() *Schema {
+	return &Schema{
+		fields: make([]string, 0),
+		info:   make(map[string]FieldInfo),
+	}
+}
+
 type Schema struct {
 	fields []string
 	info   map[string]FieldInfo
 }
 
-func (s *Schema) AddField(fldname string, t Type, length int) {
+func (s *Schema) AddField(fldname string, t FieldType, length int) {
 	s.fields = append(s.fields, fldname)
 	s.info[fldname] = FieldInfo{t, length}
 }
@@ -31,7 +39,7 @@ func (s *Schema) AddAll(sch *Schema) {
 	}
 }
 
-func (s *Schema) Type(fldname string) Type {
+func (s *Schema) Type(fldname string) FieldType {
 	return s.info[fldname].t
 }
 
@@ -49,19 +57,19 @@ func (s *Schema) HasField(fldname string) bool {
 }
 
 type FieldInfo struct {
-	t Type
+	t FieldType
 	l int
 }
 
-type Type int
+type FieldType int
 
 const (
-	IntegerField Type = 1
-	StringField  Type = 2
+	IntegerField FieldType = 1
+	StringField  FieldType = 2
 )
 
-// String implements the Stringer interface for Type
-func (t Type) String() string {
+// String implements the Stringer interface for FieldType
+func (t FieldType) String() string {
 	switch t {
 	case IntegerField:
 		return "INT"

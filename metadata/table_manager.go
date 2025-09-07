@@ -1,6 +1,7 @@
-package record
+package metadata
 
 import (
+	"github.com/kanthorlabs/kanthorkv/record"
 	"github.com/kanthorlabs/kanthorkv/tx/transaction"
 )
 
@@ -8,18 +9,18 @@ import (
 const TABLE_MAX_LEN = 16
 
 func NewTableMgr(isNew bool, tx transaction.Transaction) (*TableMgr, error) {
-	tcatSchema := NewSchema()
+	tcatSchema := record.NewSchema()
 	tcatSchema.AddStringField("tblname", TABLE_MAX_LEN)
 	tcatSchema.AddIntField("slotsize")
-	tcatLayout := NewLayoutOfSchema(tcatSchema)
+	tcatLayout := record.NewLayoutOfSchema(tcatSchema)
 
-	fcatSchema := NewSchema()
+	fcatSchema := record.NewSchema()
 	fcatSchema.AddStringField("tblname", TABLE_MAX_LEN)
 	fcatSchema.AddStringField("fldname", TABLE_MAX_LEN)
 	fcatSchema.AddIntField("type")
 	fcatSchema.AddIntField("length")
 	fcatSchema.AddIntField("offset")
-	fcatLayout := NewLayoutOfSchema(fcatSchema)
+	fcatLayout := record.NewLayoutOfSchema(fcatSchema)
 
 	tblmgr := &TableMgr{
 		tcatLayout: tcatLayout,
@@ -39,14 +40,14 @@ func NewTableMgr(isNew bool, tx transaction.Transaction) (*TableMgr, error) {
 }
 
 type TableMgr struct {
-	tcatLayout *Layout
-	fcatLayout *Layout
+	tcatLayout *record.Layout
+	fcatLayout *record.Layout
 }
 
-func (tm *TableMgr) CreateTable(tblname string, sch *Schema, tx transaction.Transaction) (err error) {
-	layout := NewLayoutOfSchema(sch)
+func (tm *TableMgr) CreateTable(tblname string, sch *record.Schema, tx transaction.Transaction) (err error) {
+	layout := record.NewLayoutOfSchema(sch)
 	// insert one record into table cat
-	tcat, err := NewTableScan(tx, "tblcat", tm.tcatLayout)
+	tcat, err := record.NewTableScan(tx, "tblcat", tm.tcatLayout)
 	if err != nil {
 		return err
 	}
@@ -65,7 +66,7 @@ func (tm *TableMgr) CreateTable(tblname string, sch *Schema, tx transaction.Tran
 	}
 
 	// inser a record into fldcat for each field
-	fcat, err := NewTableScan(tx, "fldcat", tm.fcatLayout)
+	fcat, err := record.NewTableScan(tx, "fldcat", tm.fcatLayout)
 	if err != nil {
 		return err
 	}
@@ -97,9 +98,9 @@ func (tm *TableMgr) CreateTable(tblname string, sch *Schema, tx transaction.Tran
 	return nil
 }
 
-func (tm *TableMgr) GetLayout(tname string, tx transaction.Transaction) (*Layout, error) {
+func (tm *TableMgr) GetLayout(tname string, tx transaction.Transaction) (*record.Layout, error) {
 	size := -1
-	tcat, err := NewTableScan(tx, "tblcat", tm.tcatLayout)
+	tcat, err := record.NewTableScan(tx, "tblcat", tm.tcatLayout)
 	if err != nil {
 		return nil, err
 	}
@@ -121,9 +122,9 @@ func (tm *TableMgr) GetLayout(tname string, tx transaction.Transaction) (*Layout
 		}
 	}
 
-	sch := NewSchema()
+	sch := record.NewSchema()
 	offsets := make(map[string]int)
-	fcat, err := NewTableScan(tx, "fldcat", tm.fcatLayout)
+	fcat, err := record.NewTableScan(tx, "fldcat", tm.fcatLayout)
 	if err != nil {
 		return nil, err
 	}
@@ -154,9 +155,9 @@ func (tm *TableMgr) GetLayout(tname string, tx transaction.Transaction) (*Layout
 				return nil, err
 			}
 			offsets[fldname] = offset
-			sch.AddField(fldname, FieldType(ftype), length)
+			sch.AddField(fldname, record.FieldType(ftype), length)
 		}
 	}
 
-	return NewLayout(sch, offsets, size), nil
+	return record.NewLayout(sch, offsets, size), nil
 }

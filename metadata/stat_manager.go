@@ -1,8 +1,9 @@
-package record
+package metadata
 
 import (
 	"sync"
 
+	"github.com/kanthorlabs/kanthorkv/record"
 	"github.com/kanthorlabs/kanthorkv/tx/transaction"
 )
 
@@ -29,7 +30,7 @@ type StatMgr struct {
 	tmu sync.Mutex
 }
 
-func (sm *StatMgr) GetStatInfo(tblname string, layout *Layout, tx transaction.Transaction) (*StatInfo, error) {
+func (sm *StatMgr) GetStatInfo(tblname string, layout *record.Layout, tx transaction.Transaction) (*StatInfo, error) {
 	sm.numcalls++
 	if sm.numcalls > 100 {
 		err := sm.RefreshStatistics(tx)
@@ -61,7 +62,7 @@ func (sm *StatMgr) RefreshStatistics(tx transaction.Transaction) (err error) {
 	if err != nil {
 		return err
 	}
-	tcat, err := NewTableScan(tx, "tblcat", tcatlayout)
+	tcat, err := record.NewTableScan(tx, "tblcat", tcatlayout)
 	if err != nil {
 		return err
 	}
@@ -88,14 +89,14 @@ func (sm *StatMgr) RefreshStatistics(tx transaction.Transaction) (err error) {
 	return nil
 }
 
-func (sm *StatMgr) CalcTableStats(tblname string, layout *Layout, tx transaction.Transaction) (*StatInfo, error) {
+func (sm *StatMgr) CalcTableStats(tblname string, layout *record.Layout, tx transaction.Transaction) (*StatInfo, error) {
 	sm.tmu.Lock()
 	defer sm.tmu.Unlock()
 
 	numRecs := 0
 	numblocks := 0
 
-	ts, err := NewTableScan(tx, tblname, layout)
+	ts, err := record.NewTableScan(tx, tblname, layout)
 	if err != nil {
 		return nil, err
 	}

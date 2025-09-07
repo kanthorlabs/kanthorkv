@@ -1,6 +1,9 @@
-package record
+package metadata
 
-import "github.com/kanthorlabs/kanthorkv/tx/transaction"
+import (
+	"github.com/kanthorlabs/kanthorkv/record"
+	"github.com/kanthorlabs/kanthorkv/tx/transaction"
+)
 
 // view name max length
 const VIEW_MAX_LEN = 100
@@ -10,7 +13,7 @@ func NewViewMgr(isNew bool, tblmgr *TableMgr, tx transaction.Transaction) (*View
 		tblmgr: tblmgr,
 	}
 	if isNew {
-		sch := NewSchema()
+		sch := record.NewSchema()
 		sch.AddStringField("viewname", TABLE_MAX_LEN)
 		sch.AddStringField("viewdef", VIEW_MAX_LEN)
 
@@ -32,7 +35,7 @@ func (vm *ViewMgr) CreateView(vname string, vdef string, tx transaction.Transact
 		return err
 	}
 
-	ts, err := NewTableScan(tx, "viewcat", layout)
+	ts, err := record.NewTableScan(tx, "viewcat", layout)
 	if err != nil {
 		return err
 	}
@@ -59,7 +62,7 @@ func (vm *ViewMgr) GetViewDef(vname string, tx transaction.Transaction) (string,
 		return "", err
 	}
 
-	ts, err := NewTableScan(tx, "viewcat", layout)
+	ts, err := record.NewTableScan(tx, "viewcat", layout)
 	if err != nil {
 		return "", err
 	}

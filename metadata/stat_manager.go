@@ -1,6 +1,7 @@
 package metadata
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/kanthorlabs/kanthorkv/record"
@@ -67,7 +68,7 @@ func (sm *StatMgr) RefreshStatistics(tx transaction.Transaction) (err error) {
 		return err
 	}
 	defer func() {
-		err = tcat.Close()
+		err = errors.Join(err, tcat.Close())
 	}()
 
 	for tcat.Next() {
@@ -101,7 +102,7 @@ func (sm *StatMgr) CalcTableStats(tblname string, layout *record.Layout, tx tran
 		return nil, err
 	}
 	defer func() {
-		err = ts.Close()
+		err = errors.Join(err, ts.Close())
 	}()
 
 	for ts.Next() {

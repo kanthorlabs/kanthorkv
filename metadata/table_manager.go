@@ -1,6 +1,8 @@
 package metadata
 
 import (
+	"errors"
+
 	"github.com/kanthorlabs/kanthorkv/record"
 	"github.com/kanthorlabs/kanthorkv/tx/transaction"
 )
@@ -52,7 +54,7 @@ func (tm *TableMgr) CreateTable(tblname string, sch *record.Schema, tx transacti
 		return err
 	}
 	defer func() {
-		err = tcat.Close()
+		err = errors.Join(err, tcat.Close())
 	}()
 
 	if err := tcat.Insert(); err != nil {
@@ -71,7 +73,7 @@ func (tm *TableMgr) CreateTable(tblname string, sch *record.Schema, tx transacti
 		return err
 	}
 	defer func() {
-		err = fcat.Close()
+		err = errors.Join(err, fcat.Close())
 	}()
 
 	for _, fldname := range sch.Fields() {
@@ -105,7 +107,7 @@ func (tm *TableMgr) GetLayout(tname string, tx transaction.Transaction) (*record
 		return nil, err
 	}
 	defer func() {
-		err = tcat.Close()
+		err = errors.Join(err, tcat.Close())
 	}()
 
 	for tcat.Next() {
@@ -129,7 +131,7 @@ func (tm *TableMgr) GetLayout(tname string, tx transaction.Transaction) (*record
 		return nil, err
 	}
 	defer func() {
-		err = fcat.Close()
+		err = errors.Join(err, fcat.Close())
 	}()
 
 	for fcat.Next() {

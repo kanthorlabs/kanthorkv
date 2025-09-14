@@ -1,6 +1,8 @@
 package metadata
 
 import (
+	"errors"
+
 	"github.com/kanthorlabs/kanthorkv/record"
 	"github.com/kanthorlabs/kanthorkv/tx/transaction"
 )
@@ -40,7 +42,7 @@ func (vm *ViewMgr) CreateView(vname string, vdef string, tx transaction.Transact
 		return err
 	}
 	defer func() {
-		err = ts.Close()
+		err = errors.Join(err, ts.Close())
 	}()
 
 	if err := ts.Insert(); err != nil {
@@ -67,7 +69,7 @@ func (vm *ViewMgr) GetViewDef(vname string, tx transaction.Transaction) (string,
 		return "", err
 	}
 	defer func() {
-		err = ts.Close()
+		err = errors.Join(err, ts.Close())
 	}()
 
 	for ts.Next() {

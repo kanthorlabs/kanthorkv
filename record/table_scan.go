@@ -109,14 +109,14 @@ func (ts *TableScan) GetVal(fldname string) (Constant, error) {
 		if err != nil {
 			return Constant{}, err
 		}
-		return IntConstant(i), nil
+		return NewIntConstant(i), nil
 	}
 
 	s, err := ts.GetString(fldname)
 	if err != nil {
 		return Constant{}, err
 	}
-	return StringConstant(s), nil
+	return NewStringConstant(s), nil
 }
 
 func (ts *TableScan) HasField(fldname string) bool {

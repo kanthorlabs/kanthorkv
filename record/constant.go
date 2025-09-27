@@ -5,11 +5,11 @@ import (
 	"hash/fnv"
 )
 
-func IntConstant(val int) Constant {
+func NewIntConstant(val int) Constant {
 	return Constant{ival: &val}
 }
 
-func StringConstant(val string) Constant {
+func NewStringConstant(val string) Constant {
 	return Constant{sval: &val}
 }
 

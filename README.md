@@ -31,4 +31,4 @@ The quote that inspired this project is:
 - 2025-08-24: [Record Manager](docs/diary/2025-08-24.md)
 - 2025-09-07: [Record Manager](docs/diary/2025-09-07.md)
 - 2025-09-20: [Scan](docs/diary/2025-09-20.md)
-- 2025-09-27: [Scan](docs/diary/2025-09-27.md)
+- 2025-09-27: [Parser](docs/diary/2025-09-27.md)

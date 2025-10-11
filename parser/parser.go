@@ -15,7 +15,7 @@ type Parser struct {
 	prevTok Token
 }
 
-func NewParser(lex *Lexer) *Parser {
+func New(lex *Lexer) *Parser {
 	p := &Parser{lex: lex}
 	p.nextToken()
 	return p

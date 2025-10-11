@@ -23,6 +23,9 @@ C4Container
     Person(client, "Database Client", "Application using KanthorKV")
 
     Container_Boundary(kanthorkv, "KanthorKV Library") {
+        Container(parser, "SQL Parser", "Go", "Lexer and parser for SQL statements")
+        Container(planner, "Query Planner", "Go", "Query and update planning, optimization")
+        Container(query, "Query Execution", "Go", "Scan implementations, expressions, predicates")
         Container(record, "Record Layer", "Go", "Schema/Layout, RecordPage, TableScan; CRUD over records")
         Container(metadata, "Metadata Manager", "Go", "Table/View/Index/Statistics management")
         Container(index, "Index Layer", "Go", "Database index implementations")
@@ -36,9 +39,15 @@ C4Container
 
     System_Ext(storage, "File System Storage", "OS", "Data and log files on disk")
 
+    Rel(client, parser, "Uses", "Parse SQL queries")
     Rel(client, record, "Uses", "Scan/Insert/Update/Delete")
     Rel(client, transaction, "Uses", "Begin/Commit/Rollback")
     Rel(client, metadata, "Uses", "Create tables/views/indexes")
+    Rel(parser, planner, "Uses", "Generate query plan")
+    Rel(planner, query, "Uses", "Create scan operations")
+    Rel(planner, metadata, "Uses", "Get table/index metadata")
+    Rel(query, record, "Uses", "Execute scans over records")
+    Rel(query, index, "Uses", "Index scans")
     Rel(record, transaction, "Uses", "Record ops via Transaction API")
     Rel(record, metadata, "Uses", "Table layouts and schemas")
     Rel(metadata, index, "Uses", "Index management")
@@ -62,6 +71,10 @@ C4Component
     title Component Diagram for KanthorKV Database System
 
     Container_Boundary(kanthorkv, "KanthorKV Database") {
+        Component(parser, "SQL Parser", "Go", "Lexer and parser for SQL statements (SELECT, INSERT, UPDATE, DELETE, CREATE)")
+        Component(query_planner, "Query Planner", "Go", "Basic query planner for SELECT operations with optimization")
+        Component(update_planner, "Update Planner", "Go", "Planner for INSERT, UPDATE, DELETE, and DDL operations")
+        Component(query_exec, "Query Executor", "Go", "Scan implementations: Product, Project, Select scans with expressions and predicates")
         Component(metadata, "Metadata Manager", "Go", "Central metadata coordinator for all catalog operations")
         Component(table_mgr, "Table Manager", "Go", "Manages table schemas and catalog metadata")
         Component(view_mgr, "View Manager", "Go", "Manages database views and view definitions")
@@ -81,9 +94,18 @@ C4Component
     
     Person(client, "Database Client", "Application using KanthorKV")
 
+    Rel(client, parser, "Uses", "Parse SQL statements")
     Rel(client, transaction, "Uses", "Begin/Commit/Rollback transactions")
     Rel(client, record, "Uses", "Scan/Insert/Update/Delete records")
     Rel(client, metadata, "Uses", "Create tables/views/indexes, Get layouts")
+    
+    Rel(parser, query_planner, "Uses", "Query data for SELECT")
+    Rel(parser, update_planner, "Uses", "Insert/Update/Delete/Create data")
+    Rel(query_planner, query_exec, "Uses", "Create scan operations")
+    Rel(query_planner, metadata, "Uses", "Get table layouts and statistics")
+    Rel(update_planner, metadata, "Uses", "Get layouts and create metadata")
+    Rel(query_exec, record, "Uses", "Execute scans over records")
+    Rel(query_exec, index, "Uses", "Index scan operations")
     
     Rel(metadata, table_mgr, "Uses", "Table operations")
     Rel(metadata, view_mgr, "Uses", "View operations") 
@@ -93,6 +115,7 @@ C4Component
     
     Rel(record, metadata, "Uses", "Get table layouts and schemas")
     Rel(record, transaction, "Uses", "Pin/Unpin, Get/Set, Size/Append via Transaction API")
+    Rel(update_planner, record, "Uses", "Insert/Update/Delete operations")
     Rel(table_mgr, transaction, "Uses", "Table catalog operations")
     Rel(view_mgr, transaction, "Uses", "View catalog operations")
     Rel(stat_mgr, transaction, "Uses", "Statistics collection")

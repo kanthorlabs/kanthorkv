@@ -15,3 +15,7 @@ type RID struct {
 func (rid RID) BlockNumber() int {
 	return rid.Blknum
 }
+
+func (rid RID) Equal(other RID) bool {
+	return rid.Blknum == other.Blknum && rid.Slot == other.Slot
+}

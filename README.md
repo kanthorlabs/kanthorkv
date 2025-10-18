@@ -37,3 +37,4 @@ The quote that inspired this project is:
 - 2025-09-20: [Scan](docs/diary/2025-09-20.md)
 - 2025-09-27: [Parser](docs/diary/2025-09-27.md)
 - 2025-09-28: [Planner](docs/diary/2025-09-28.md)
+- 2025-09-29: [Index](docs/diary/2025-09-29.md)

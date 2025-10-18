@@ -117,7 +117,7 @@ type IndexInfo struct {
 }
 
 func (ii *IndexInfo) Open() (index.Index, error) {
-	return index.NewHashIndex(ii.tx, ii.idxname, ii.idxLayout)
+	return index.NewStaticHashIndex(ii.tx, ii.idxname, ii.idxLayout)
 }
 
 func (ii *IndexInfo) BlocksAccessed() int {

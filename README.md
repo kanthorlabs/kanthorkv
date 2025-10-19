@@ -13,6 +13,7 @@ The quote that inspired this project is:
 ## Sub-projects
 
 - A query parser that can parse a subset of SQL commands. Implement with python by using LALR(1) shift-reduce parser (Bottom-Up) same as PostgreSQL and SQLite does.
+- Implement B-Tree
 
 ## Credits
 
@@ -37,4 +38,5 @@ The quote that inspired this project is:
 - 2025-09-20: [Scan](docs/diary/2025-09-20.md)
 - 2025-09-27: [Parser](docs/diary/2025-09-27.md)
 - 2025-09-28: [Planner](docs/diary/2025-09-28.md)
-- 2025-09-29: [Index](docs/diary/2025-09-29.md)
+- 2025-10-18: [Index](docs/diary/2025-10-18.md)
+- 2025-10-19: [Index](docs/diary/2025-10-19.md)

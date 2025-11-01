@@ -40,3 +40,4 @@ The quote that inspired this project is:
 - 2025-09-28: [Planner](docs/diary/2025-09-28.md)
 - 2025-10-18: [Index](docs/diary/2025-10-18.md)
 - 2025-10-19: [Index](docs/diary/2025-10-19.md)
+- 2025-11-01: [Index](docs/diary/2025-11-01.md)
